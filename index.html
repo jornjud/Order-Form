@@ -3,31 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ฟอร์มสั่งของ V10</title> <link rel="stylesheet" href="style.css">
-
+    <title>📝 ฟอร์มสั่งของ V15 (แบบแท็บ)</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-
     <script src="script.js" defer></script>
-
 </head>
 <body>
 
-    <div class="container">
-        <h1>📝 ฟอร์มสั่งของ V10</h1>
+    <div class="container mx-auto px-4 py-4 md:py-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-center mb-6 text-indigo-700">📝 ฟอร์มสั่งของ V15 (แบบแท็บ)</h1>
 
-        <div id="loading-error-message" class="loading-error"></div>
+        <div id="loading-error-message" class="loading-error mb-4"></div>
 
-        <div id="shops-container">
+        <div id="shop-tabs-container" class="tabs-container mb-4 flex flex-wrap items-center border-b border-gray-300 pb-2 gap-2">
+            <button id="add-tab-btn" class="add-tab-button" title="เพิ่มร้านค้าใหม่">+</button>
+            <div id="new-shop-input-container" class="new-shop-input-container hidden">
+                 <input type="text" id="new-shop-name-input" placeholder="ใส่ชื่อร้านใหม่..." class="new-shop-name-input">
+                 <button id="save-new-shop-btn" class="save-new-shop-button">บันทึก</button>
+                 <button id="cancel-new-shop-btn" class="cancel-new-shop-button">ยกเลิก</button>
             </div>
-
-        <div class="add-shop-button-container">
-            <button id="add-shop-btn" class="action-button add-shop-main-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
-                เพิ่มร้านค้าใหม่
-            </button>
         </div>
 
-         <div id="overall-summary-container" class="summary-fixed-container">
+        <div id="tab-content-area" class="tab-content-area">
+            <p id="no-shop-placeholder" class="text-center text-gray-500 italic py-8">
+                ยังไม่มีร้านค้าเลยเพื่อน! กดปุ่ม "+" บนแถบแท็บเพื่อเพิ่มร้านแรกสิ!
+            </p>
+        </div>
+
+        <div id="overall-summary-container" class="summary-fixed-container">
             <button id="overall-summary-btn" class="action-button overall-summary-main-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
                 ดูสรุปรายการทั้งหมด
@@ -38,12 +41,9 @@
             <div class="modal-content">
                 <span class="close-btn" id="modal-close-btn">&times;</span>
                 <h2 class="modal-title">สรุปรายการสั่งซื้อ</h2>
-
                 <p id="summary-timestamp" class="summary-timestamp"></p>
-
                 <div id="summaryContent" class="summary-modal-content">
                     </div>
-
                 <div class="modal-actions">
                      <button id="copy-summary-btn" class="action-button copy-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
@@ -57,5 +57,5 @@
             </div>
         </div>
 
-        </div> </body>
+    </div> </body>
 </html>
