@@ -11,7 +11,7 @@ body {
 .container { width: 100%; max-width: 1024px; margin: auto; padding: 1rem 0.75rem; }
 h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; color: #4338ca; }
 
-/* --- ส่วนของร้านค้า (เหมือนเดิม) --- */
+/* --- ส่วนของร้านค้า --- */
 .shop-section { border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem 1rem 1.5rem 1rem; margin-bottom: 1.5rem; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
 .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; }
 .shop-name-input { font-size: 1.4rem; font-weight: 600; color: #1f2937; border: none; border-bottom: 2px solid transparent; padding-bottom: 4px; margin-right: 0.5rem; outline: none; transition: border-color 0.3s ease; width: calc(100% - 40px); background-color: transparent; flex-grow: 1; }
@@ -20,7 +20,7 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .delete-shop-btn svg { width: 22px; height: 22px; display: block; }
 .delete-shop-btn:hover { background-color: #fee2e2; color: #dc2626; }
 
-/* --- แถวรายการสินค้า (เหมือนเดิม) --- */
+/* --- แถวรายการสินค้า --- */
 .items-list { }
 .item-row { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "quantity unit" "item item" "delete delete"; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
 @media (min-width: 640px) { .item-row { grid-template-columns: 4.5rem 5.5rem 1fr auto; grid-template-areas: "quantity unit item delete"; gap: 0.6rem; margin-bottom: 0.75rem; } .item-row .remove-btn-container { grid-area: delete; justify-self: end; } }
@@ -34,13 +34,13 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .remove-btn svg { width: 18px; height: 18px; display: block; }
 .remove-btn:hover { background-color: #dc2626; }
 
-/* --- ปุ่มดำเนินการทั่วไป (เหมือนเดิม) --- */
+/* --- ปุ่มดำเนินการทั่วไป --- */
 .action-button { font-weight: 600; padding: 0.7rem 1.1rem; border-radius: 0.5rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.95rem; line-height: 1; border: none; cursor: pointer; transition: all 0.2s ease-in-out; text-align: center; width: 100%; }
 @media (min-width: 640px) { .action-button { width: auto; } }
 .action-button svg { width: 18px; height: 18px; }
 .action-button:hover:not(.remove-btn):not(.close-btn):not(.delete-shop-btn) { opacity: 0.9; transform: scale(1.02); }
 
-/* สไตล์เฉพาะปุ่ม (เหมือนเดิม V10) */
+/* สไตล์เฉพาะปุ่ม */
 .add-shop-button-container { text-align: center; margin-top: 1.5rem; }
 .add-shop-main-btn { background-image: linear-gradient(to right, #10b981, #059669); color: white; }
 .add-shop-main-btn:hover { background-image: linear-gradient(to right, #059669, #047857); }
@@ -55,10 +55,10 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .close-action-btn { background-color: #d1d5db; color: #1f2937; }
 .close-action-btn:hover { background-color: #9ca3af; }
 
-/* --- ส่วน Loading / Error Message (เหมือนเดิม) --- */
+/* --- ส่วน Loading / Error Message --- */
 .loading-error { text-align: center; padding: 1rem; margin: 1rem auto; background-color: #fffbeb; color: #b45309; border: 1px solid #fef3c7; border-radius: 0.5rem; max-width: 600px; display: none; font-size: 0.9rem; line-height: 1.4; }
 
-/* --- ปุ่มสรุปทั้งหมดแบบลอย (Fixed) (เหมือนเดิม) --- */
+/* --- ปุ่มสรุปทั้งหมดแบบลอย (Fixed) --- */
 .summary-fixed-container { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); z-index: 900; display: none; width: auto; max-width: 90%; }
 
 /* --- Modal สรุปรายการ --- */
@@ -71,45 +71,233 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 
 /* สไตล์สำหรับเนื้อหาสรุป (ตาราง) */
 .summary-modal-content { max-height: 60vh; overflow-y: auto; padding-right: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; }
-.summary-modal-content h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #1f2937; padding-bottom: 0.25rem; border-bottom: 1px solid #e5e7eb; }
+.summary-modal-content h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1.2rem; margin-bottom: 0.25rem; color: #1f2937; padding-bottom: 0.25rem; border-bottom: 1px solid #e5e7eb; } /* V12: ปรับ margin */
 .summary-modal-content h3:first-child { margin-top: 0; }
-.summary-modal-content table { width: 100%; border-collapse: collapse; margin-bottom: 0.5rem; /* ลดระยะห่างท้ายตาราง */ } /* V11: ลด mb */
+.summary-modal-content table { width: 100%; border-collapse: collapse; margin-bottom: 0.5rem; }
 .summary-modal-content th,
 .summary-modal-content td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; word-wrap: break-word; }
 .summary-modal-content th { background-color: #f8f9fa; font-weight: 600; font-size: 0.85rem; }
-.summary-modal-content td { font-size: 0.875rem; } /* ขนาด font เนื้อหาตาราง */
+.summary-modal-content td { font-size: 0.875rem; }
 /* กำหนดความกว้างคอลัมน์ */
 .summary-modal-content th:nth-child(1), .summary-modal-content td:nth-child(1) { width: 15%; text-align: center; } /* จำนวน */
 .summary-modal-content th:nth-child(2), .summary-modal-content td:nth-child(2) { width: 20%; } /* หน่วย */
 .summary-modal-content th:nth-child(3), .summary-modal-content td:nth-child(3) { width: 45%; } /* รายการ */
 .summary-modal-content th:nth-child(4), .summary-modal-content td:nth-child(4) { width: 20%; } /* หมายเหตุ/ราคา */
 
-/* *** V11: เพิ่มสไตล์สำหรับแถวรวมราคา (tfoot) *** */
+/* แถวรวมราคา (tfoot) */
 .summary-modal-content tfoot td {
-    font-weight: bold; /* ตัวหนา */
-    background-color: #f8f9fa; /* สีพื้นหลังเดียวกับ a */
-    border-top: 2px solid #bbb; /* เส้นหนาขึ้นหน่อย */
+    font-weight: bold;
+    background-color: #f8f9fa;
+    border-top: 2px solid #bbb;
 }
-.summary-modal-content tfoot td[colspan="3"] { /* จัดสไตล์ให้ cell ที่รวมคอลัมน์ */
-    text-align: right; /* ชิดขวา */
-    border-right: none; /* เอาเส้นขอบขวาออก */
+.summary-modal-content tfoot td[colspan="3"] {
+    text-align: right;
+    border-right: none;
     padding-right: 10px;
 }
-.summary-modal-content tfoot td:last-child { /* จัดสไตล์ให้ cell สุดท้าย (ช่องใส่ราคา) */
-    border-left: none; /* เอาเส้นขอบซ้ายออก */
-    min-height: 1.5em; /* กำหนดความสูงขั้นต่ำ เผื่อเขียน */
+.summary-modal-content tfoot td:last-child {
+    border-left: none;
+    min-height: 1.5em;
 }
 
 /* สไตล์สำหรับข้อความ "(ไม่มีรายการ)" */
 .summary-modal-content p { text-align: center; color: #9ca3af; font-style: italic; font-size: 0.875rem; padding: 0.5rem 0; margin: 0; }
 
 /* ปุ่มใน Modal */
-.modal-actions { text-align: center; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 0.75rem; }
-@media (min-width: 640px) { .modal-actions { flex-direction: row; justify-content: center; } }
+.modal-actions {
+    text-align: center;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+@media (min-width: 640px) {
+    .modal-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
 .copy-status-message { text-align: center; color: #059669; margin-top: 0.75rem; font-weight: 600; display: none; font-size: 0.9rem; }
 
-/* --- ส่วนของการดำเนินการในแต่ละร้าน (เหมือนเดิม) --- */
+/* --- ส่วนของการดำเนินการในแต่ละร้าน --- */
 .shop-actions { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f3f4f6; display: flex; flex-direction: column; gap: 0.75rem; }
 @media (min-width: 640px) { .shop-actions { flex-direction: row; justify-content: space-between; align-items: center; } }
 
-/* --- ลบ @media print ทิ้งไป --- */
+/* --- *** V12: สไตล์สำหรับการพิมพ์ *** --- */
+@media print {
+    /* ซ่อนปุ่มและ element ที่ไม่ต้องการพิมพ์ */
+    .add-shop-button-container,
+    .summary-fixed-container,
+    .shop-header .delete-shop-btn,
+    .shop-actions,
+    .item-row .remove-btn-container,
+    .modal-actions,
+    .modal .close-btn,
+    .copy-status-message {
+        display: none !important;
+    }
+
+    /* ปรับ layout สำหรับการพิมพ์ */
+    html, body {
+        background-color: #ffffff !important;
+        padding-bottom: 0 !important;
+        margin: 0 !important;
+        color: #000000 !important; /* ทำให้ตัวหนังสือเป็นสีดำทั้งหมด */
+    }
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    .shop-section {
+        box-shadow: none !important;
+        border: 1px solid #cccccc !important;
+        page-break-inside: avoid !important; /* พยายามไม่ให้ section ร้านค้าโดนตัดข้ามหน้า */
+        margin-bottom: 1rem !important;
+        padding: 0.5rem !important; /* ลด padding ตอนพิมพ์ */
+    }
+    h1 {
+        font-size: 16pt !important; /* ปรับขนาด h1 */
+        margin-bottom: 1rem !important;
+        color: #000000 !important;
+        text-align: left !important; /* จัดชิดซ้าย */
+    }
+
+    /* ทำให้ Modal แสดงผลเหมือนเนื้อหาปกติ */
+    .modal {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        background-color: transparent !important;
+        padding-top: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    .modal-content {
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .modal-title {
+        font-size: 14pt !important; /* ปรับขนาด title */
+        text-align: left !important;
+        color: #000000 !important;
+        margin-bottom: 0.5rem !important;
+    }
+     .summary-timestamp {
+        text-align: left !important;
+        font-size: 9pt !important;
+        color: #333333 !important;
+        border-bottom: 1px dashed #cccccc !important;
+        padding-bottom: 0.3rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+     .summary-modal-content {
+        max-height: none !important;
+        overflow-y: visible !important;
+        padding-right: 0 !important;
+        font-size: 10pt !important; /* ปรับขนาด font เนื้อหา */
+    }
+     .summary-modal-content h3 {
+        font-size: 11pt !important;
+        color: #000000 !important;
+        border-bottom: 1px solid #cccccc !important;
+        margin-top: 0.8rem !important;
+        margin-bottom: 0.2rem !important;
+     }
+     .summary-modal-content h3:first-child {
+         margin-top: 0 !important;
+     }
+     /* V12: สไตล์ timestamp ต่อร้านตอนพิมพ์ */
+     .summary-modal-content .shop-timestamp-print {
+        font-size: 8pt !important;
+        color: #555555 !important;
+        margin-bottom: 0.3rem !important;
+        text-align: left !important;
+     }
+
+    /* ทำให้ input แสดงเป็น text ธรรมดา */
+    .shop-name-input,
+    .item-row input {
+        border: none !important;
+        background-color: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important; /* อาจจะต้องปรับละเอียด */
+        box-shadow: none !important;
+        color: #000000 !important;
+        font-size: inherit !important; /* ใช้ขนาด font จาก parent */
+        appearance: none !important; /* ซ่อน UI ของ input */
+        -webkit-appearance: none !important;
+        -moz-appearance: textfield !important; /* Firefox */
+    }
+    .shop-name-input {
+        font-weight: bold !important; /* ทำให้ชื่อร้านเด่น */
+    }
+    .item-row .quantity-input,
+    .item-row .unit-input {
+         text-align: left !important; /* จัดชิดซ้ายให้เหมือนกัน */
+    }
+    .item-row .quantity-input {
+         width: auto !important; /* ให้ความกว้างตามเนื้อหา */
+         min-width: 3em !important; /* กำหนดความกว้างขั้นต่ำ */
+         text-align: center !important; /* กลับเป็น center */
+    }
+     .item-row .unit-input {
+         width: auto !important;
+         min-width: 4em !important;
+    }
+     .item-row .item-input {
+         width: 100% !important; /* ให้รายการเต็มความกว้างที่เหลือ */
+    }
+
+    /* ปรับตารางสรุปตอนพิมพ์ */
+    .summary-modal-content table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-bottom: 0.5rem !important;
+        font-size: 9pt !important; /* ขนาด font ในตาราง */
+    }
+    .summary-modal-content th,
+    .summary-modal-content td {
+        border: 1px solid #cccccc !important;
+        padding: 4px 6px !important; /* ลด padding */
+        vertical-align: top !important;
+    }
+    .summary-modal-content th {
+        background-color: #eeeeee !important; /* สีเทาอ่อน */
+        font-weight: bold !important;
+    }
+    .summary-modal-content tfoot td {
+        background-color: #eeeeee !important;
+        font-weight: bold !important;
+        border-top: 2px solid #bbbbbb !important;
+    }
+     .summary-modal-content tfoot td[colspan="3"] {
+        border-right: none !important;
+    }
+    .summary-modal-content tfoot td:last-child {
+        border-left: none !important;
+    }
+     /* ซ่อนคอลัมน์ หมายเหตุ/ราคา ถ้าไม่ต้องการ */
+     /*
+     .summary-modal-content th:nth-child(4),
+     .summary-modal-content td:nth-child(4),
+     .summary-modal-content tfoot td:last-child {
+         display: none !important;
+     }
+     .summary-modal-content tfoot td[colspan="3"] {
+         colspan: 2;
+         border-right: 1px solid #cccccc !important;
+     }
+     */
+}
