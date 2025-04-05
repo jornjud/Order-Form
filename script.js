@@ -14,9 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const overallSummaryButton = document.getElementById('overall-summary-btn');
     const modalCloseButton = document.getElementById('modal-close-btn');
     const copySummaryButton = document.getElementById('copy-summary-btn');
-    // const printSummaryButton = document.getElementById('print-summary-btn'); // V10: ลบปุ่ม Print
     const closeModalActionButton = document.getElementById('close-modal-action-btn');
-    // const printArea = document.getElementById('print-area'); // V10: ลบ Print Area
 
     // --- Constants ---
     const BASE_UNITS = ["กก.", "กรัม", "ขีด", "กล่อง", "กำ", "กระป๋อง", "ขวด", "ขึ้นฉ่าย", "ชุด", "ชิ้น", "ช่อ", "ซอง", "ต้น", "ถุง", "แผ่น", "แผง", "แถว", "ผล", "ใบ", "ปี๊บ", "พวง", "แพ็ค", "ฟอง", "ม้วน", "มัด", "เมตร", "ลัง", "ลูก", "เส้น", "หน่วย", "อัน", "หัว", "หวี", "โหล"].sort((a, b) => a.localeCompare(b, 'th'));
@@ -154,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function escapeHtml(unsafe) { if (typeof unsafe !== 'string') return ''; return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
     /**
-     * *** V10: แสดง Modal สรุป (เปลี่ยนเป็นสร้างตาราง) ***
+     * *** V11: แสดง Modal สรุป (สร้างตาราง + แถวรวมราคา) ***
      * @param {string | null} shopId
      */
     function showSummary(shopId = null) {
@@ -170,30 +168,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataToShow = shopId === null ? data.filter(shop => shop.items.length > 0 || shop.shopName !== 'ร้านค้าใหม่ (คลิกแก้ชื่อ)') : data;
 
         if (dataToShow.length === 0) {
-             summaryContent.innerHTML = '<p>ไม่มีรายการสั่งซื้อว่ะเพื่อน</p>'; // ใช้ class จาก CSS
+             summaryContent.innerHTML = '<p>ไม่มีรายการสั่งซื้อว่ะเพื่อน</p>';
         } else {
-            // สร้าง HTML string สำหรับเนื้อหาทั้งหมดใน modal
             let modalHtml = '';
             dataToShow.forEach(shopData => {
                 const shopNameEscaped = escapeHtml(shopData.shopName);
-                // ไม่ต้องสร้าง shopDiv แล้ว ใส่ h3 และ table ต่อกันไปเลย
                 modalHtml += `<h3>🛒 ${shopNameEscaped}</h3>`; // ชื่อร้าน
 
+                // เริ่มสร้างตาราง
+                modalHtml += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>จำนวน</th>
+                                <th>หน่วย</th>
+                                <th>รายการ</th>
+                                <th>หมายเหตุ/ราคา</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                // เพิ่มแถวข้อมูลสินค้า (ถ้ามี)
                 if (shopData.items && shopData.items.length > 0) {
-                    // เริ่มสร้างตาราง
-                    modalHtml += `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>จำนวน</th>
-                                    <th>หน่วย</th>
-                                    <th>รายการ</th>
-                                    <th>หมายเหตุ/ราคา</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
-                    // เพิ่มแถวข้อมูลสินค้า
                     shopData.items.forEach(item => {
                         modalHtml += `
                             <tr>
@@ -203,16 +200,23 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <td></td> </tr>
                         `;
                     });
-                    // ปิดตาราง
-                    modalHtml += `
-                            </tbody>
-                        </table>
-                    `;
                 } else {
-                     modalHtml += `<p>(ร้านนี้ยังไม่มีรายการสั่งซื้อนะจ๊ะ)</p>`;
+                    // ถ้าไม่มีรายการ ให้แสดงแถวบอกว่าไม่มีรายการ
+                     modalHtml += `<tr><td colspan="4" style="text-align: center; font-style: italic; color: grey;">(ไม่มีรายการ)</td></tr>`;
                 }
+
+                // *** V11: เพิ่มแถวรวมราคา (<tfoot>) ***
+                modalHtml += `
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">รวมราคา:</td>
+                                <td></td> </tr>
+                        </tfoot>
+                    </table>
+                `;
             });
-            // ใส่ HTML ที่สร้างเสร็จแล้วลงใน summaryContent ทีเดียว
+            // ใส่ HTML ที่สร้างเสร็จแล้วลงใน summaryContent
             summaryContent.innerHTML = modalHtml;
         }
         summaryModal.style.display = 'block'; // แสดง Modal
@@ -221,24 +225,17 @@ document.addEventListener('DOMContentLoaded', () => {
     /** ปิด Modal */
     function closeModal() { if (summaryModal) summaryModal.style.display = 'none'; }
 
-    /** คัดลอกสรุป (เหมือนเดิม แต่ timestamp อยู่แล้ว) */
+    /** คัดลอกสรุป (เหมือนเดิม V10) */
     function copySummaryToClipboard() {
         if (!summaryContent) return; let textToCopy = "";
         const currentTimestamp = formatThaiTimestamp(); textToCopy += currentTimestamp + "\n\n";
-        const data = getOrderData(); // ดึงข้อมูลทั้งหมดมาเพื่อสร้าง text
-        const dataToCopy = data.filter(shop => shop.items.length > 0 || shop.shopName !== 'ร้านค้าใหม่ (คลิกแก้ชื่อ)');
-
-         if(dataToCopy.length === 0) {
-             textToCopy += "(ไม่มีรายการสั่งซื้อ)";
-         } else {
+        const data = getOrderData(); const dataToCopy = data.filter(shop => shop.items.length > 0 || shop.shopName !== 'ร้านค้าใหม่ (คลิกแก้ชื่อ)');
+         if(dataToCopy.length === 0) { textToCopy += "(ไม่มีรายการสั่งซื้อ)"; }
+         else {
              dataToCopy.forEach((shopData, index) => {
-                const shopNameOnly = shopData.shopName.replace(/🛒\s*/, '');
-                textToCopy += `--- ${shopNameOnly} ---\n`;
-                if (shopData.items.length > 0) {
-                    shopData.items.forEach(item => { textToCopy += `${item.quantity} ${item.unit} : ${item.item}\n`; });
-                } else {
-                    textToCopy += "(ไม่มีรายการ)\n";
-                }
+                const shopNameOnly = shopData.shopName.replace(/🛒\s*/, ''); textToCopy += `--- ${shopNameOnly} ---\n`;
+                if (shopData.items.length > 0) { shopData.items.forEach(item => { textToCopy += `${item.quantity} ${item.unit} : ${item.item}\n`; }); }
+                else { textToCopy += "(ไม่มีรายการ)\n"; }
                 if (index < dataToCopy.length - 1) { textToCopy += "\n"; }
             });
          }
@@ -249,12 +246,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { alert('เบราว์เซอร์นี้อาจจะไม่รองรับการคัดลอกอัตโนมัติ'); }
     }
 
-    // V10: ลบฟังก์ชัน printSummary ทิ้งไป
+    // V11: ไม่มีฟังก์ชัน printSummary แล้ว
 
     // --- Initialization Function ---
     /** ฟังก์ชันหลัก เริ่มต้นแอป */
     async function initializeApp() {
-        console.log("--- เริ่มต้น initializeApp (V10) ---");
+        console.log("--- เริ่มต้น initializeApp (V11) ---");
         if (!loadingErrorDiv) { console.error("หา #loading-error-message ไม่เจอ!"); return; }
         loadingErrorDiv.textContent = '⏳ แป๊บนะเพื่อน กำลังโหลดลิสต์ของ...'; loadingErrorDiv.style.display = 'block';
         loadingErrorDiv.style.backgroundColor = '#fffbeb'; loadingErrorDiv.style.color = '#b45309'; loadingErrorDiv.style.borderColor = '#fef3c7';
@@ -279,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createOrUpdateDatalist(GLOBAL_UNITS_DATALIST_ID, BASE_UNITS);
             if (!fetchSuccess && shops.length === 0) { shops = initialShopsData; }
             renderShops();
-            console.log("--- initializeApp เสร็จสิ้น (V10) ---");
+            console.log("--- initializeApp เสร็จสิ้น (V11) ---");
         }
     }
 
@@ -288,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     overallSummaryButton?.addEventListener('click', () => showSummary());
     modalCloseButton?.addEventListener('click', closeModal);
     copySummaryButton?.addEventListener('click', copySummaryToClipboard);
-    // printSummaryButton?.addEventListener('click', printSummary); // V10: ลบบรรทัดนี้
+    // printSummaryButton?.addEventListener('click', printSummary); // V11: ลบบรรทัดนี้
     closeModalActionButton?.addEventListener('click', closeModal);
     window.addEventListener('click', (event) => { if (event.target == summaryModal) closeModal(); });
 

@@ -38,9 +38,9 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .action-button { font-weight: 600; padding: 0.7rem 1.1rem; border-radius: 0.5rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.95rem; line-height: 1; border: none; cursor: pointer; transition: all 0.2s ease-in-out; text-align: center; width: 100%; }
 @media (min-width: 640px) { .action-button { width: auto; } }
 .action-button svg { width: 18px; height: 18px; }
-.action-button:hover:not(.remove-btn):not(.close-btn):not(.delete-shop-btn):not(.print-btn) { opacity: 0.9; transform: scale(1.02); } /* เอา print-btn ออกจาก hover effect */
+.action-button:hover:not(.remove-btn):not(.close-btn):not(.delete-shop-btn) { opacity: 0.9; transform: scale(1.02); }
 
-/* สไตล์เฉพาะปุ่ม (เอา print-btn ออก) */
+/* สไตล์เฉพาะปุ่ม (เหมือนเดิม V10) */
 .add-shop-button-container { text-align: center; margin-top: 1.5rem; }
 .add-shop-main-btn { background-image: linear-gradient(to right, #10b981, #059669); color: white; }
 .add-shop-main-btn:hover { background-image: linear-gradient(to right, #059669, #047857); }
@@ -69,63 +69,41 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .modal-title { font-size: 1.5rem; line-height: 2rem; font-weight: 600; margin-bottom: 0.5rem; text-align: center; color: #4f46e5; }
 .summary-timestamp { text-align: center; font-size: 0.8rem; color: #6b7280; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px dashed #e5e7eb; }
 
-/* *** V10: สไตล์สำหรับเนื้อหาสรุป (ที่จะเป็นตาราง) *** */
-.summary-modal-content {
-    max-height: 60vh; /* จำกัดความสูง ให้มี scroll */
-    overflow-y: auto;
-    padding-right: 0.5rem; /* เว้นที่ให้ scrollbar */
-    margin-bottom: 1rem;
-    font-size: 0.9rem; /* ปรับขนาด font เนื้อหา modal */
-}
-/* สไตล์สำหรับชื่อร้านใน Modal */
-.summary-modal-content h3 {
-    font-size: 1.1rem; /* ปรับขนาด */
-    font-weight: 600;
-    margin-top: 1rem; /* เว้นระยะบน */
-    margin-bottom: 0.5rem;
-    color: #1f2937;
-    padding-bottom: 0.25rem;
-    border-bottom: 1px solid #e5e7eb;
-}
-.summary-modal-content h3:first-child {
-    margin-top: 0; /* ร้านแรกไม่ต้องมี margin บน */
-}
-/* สไตล์สำหรับตารางใน Modal */
-.summary-modal-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem; /* ระยะห่างท้ายตาราง */
-}
+/* สไตล์สำหรับเนื้อหาสรุป (ตาราง) */
+.summary-modal-content { max-height: 60vh; overflow-y: auto; padding-right: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; }
+.summary-modal-content h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #1f2937; padding-bottom: 0.25rem; border-bottom: 1px solid #e5e7eb; }
+.summary-modal-content h3:first-child { margin-top: 0; }
+.summary-modal-content table { width: 100%; border-collapse: collapse; margin-bottom: 0.5rem; /* ลดระยะห่างท้ายตาราง */ } /* V11: ลด mb */
 .summary-modal-content th,
-.summary-modal-content td {
-    border: 1px solid #ddd; /* เส้นขอบเทาอ่อน */
-    padding: 6px 8px; /* ระยะห่างภายใน cell */
-    text-align: left;
-    vertical-align: top; /* จัดชิดบน */
-    word-wrap: break-word; /* ตัดคำ */
-}
-.summary-modal-content th {
-    background-color: #f8f9fa; /* สีพื้นหลังหัวตาราง */
-    font-weight: 600; /* ตัวหนา */
-    font-size: 0.85rem; /* ลดขนาด font หัวตาราง */
-}
-/* กำหนดความกว้างคอลัมน์ใน Modal */
-.summary-modal-content th:nth-child(1), /* จำนวน */
-.summary-modal-content td:nth-child(1) { width: 15%; text-align: center; }
-.summary-modal-content th:nth-child(2), /* หน่วย */
-.summary-modal-content td:nth-child(2) { width: 20%; }
-.summary-modal-content th:nth-child(3), /* รายการ */
-.summary-modal-content td:nth-child(3) { width: 45%; }
-.summary-modal-content th:nth-child(4), /* หมายเหตุ/ราคา */
-.summary-modal-content td:nth-child(4) { width: 20%; }
+.summary-modal-content td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; word-wrap: break-word; }
+.summary-modal-content th { background-color: #f8f9fa; font-weight: 600; font-size: 0.85rem; }
+.summary-modal-content td { font-size: 0.875rem; } /* ขนาด font เนื้อหาตาราง */
+/* กำหนดความกว้างคอลัมน์ */
+.summary-modal-content th:nth-child(1), .summary-modal-content td:nth-child(1) { width: 15%; text-align: center; } /* จำนวน */
+.summary-modal-content th:nth-child(2), .summary-modal-content td:nth-child(2) { width: 20%; } /* หน่วย */
+.summary-modal-content th:nth-child(3), .summary-modal-content td:nth-child(3) { width: 45%; } /* รายการ */
+.summary-modal-content th:nth-child(4), .summary-modal-content td:nth-child(4) { width: 20%; } /* หมายเหตุ/ราคา */
 
-/* สไตล์สำหรับข้อความ "(ไม่มีรายการ)" ใน Modal */
-.summary-modal-content p {
-    text-align: center; color: #9ca3af; font-style: italic;
-    font-size: 0.875rem; padding: 0.5rem 0; margin: 0;
+/* *** V11: เพิ่มสไตล์สำหรับแถวรวมราคา (tfoot) *** */
+.summary-modal-content tfoot td {
+    font-weight: bold; /* ตัวหนา */
+    background-color: #f8f9fa; /* สีพื้นหลังเดียวกับ a */
+    border-top: 2px solid #bbb; /* เส้นหนาขึ้นหน่อย */
+}
+.summary-modal-content tfoot td[colspan="3"] { /* จัดสไตล์ให้ cell ที่รวมคอลัมน์ */
+    text-align: right; /* ชิดขวา */
+    border-right: none; /* เอาเส้นขอบขวาออก */
+    padding-right: 10px;
+}
+.summary-modal-content tfoot td:last-child { /* จัดสไตล์ให้ cell สุดท้าย (ช่องใส่ราคา) */
+    border-left: none; /* เอาเส้นขอบซ้ายออก */
+    min-height: 1.5em; /* กำหนดความสูงขั้นต่ำ เผื่อเขียน */
 }
 
-/* ปุ่มใน Modal (เหมือนเดิม แต่ไม่มี print-btn) */
+/* สไตล์สำหรับข้อความ "(ไม่มีรายการ)" */
+.summary-modal-content p { text-align: center; color: #9ca3af; font-style: italic; font-size: 0.875rem; padding: 0.5rem 0; margin: 0; }
+
+/* ปุ่มใน Modal */
 .modal-actions { text-align: center; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 0.75rem; }
 @media (min-width: 640px) { .modal-actions { flex-direction: row; justify-content: center; } }
 .copy-status-message { text-align: center; color: #059669; margin-top: 0.75rem; font-weight: 600; display: none; font-size: 0.9rem; }
@@ -134,7 +112,4 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .shop-actions { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f3f4f6; display: flex; flex-direction: column; gap: 0.75rem; }
 @media (min-width: 640px) { .shop-actions { flex-direction: row; justify-content: space-between; align-items: center; } }
 
-/* =========================================== */
-/* *** V10: ลบ @media print ทั้งหมดทิ้งไป *** */
-/* =========================================== */
-
+/* --- ลบ @media print ทิ้งไป --- */
