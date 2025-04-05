@@ -1,9 +1,8 @@
-// Wrap everything in a DOMContentLoaded listener to ensure HTML is ready
+'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ค่าคงที่และตัวแปร Global ---
-    const units = ["กก.", "กรัม", "ขีด", "กล่อง", "กำ", "กระป๋อง", "ขวด", "ขึ้นฉ่าย", "ชุด", "ชิ้น", "ช่อ", "ซอง", "ต้น", "ถุง", "แผ่น", "แผง", "แถว", "ผล", "ใบ", "ปี๊บ", "พวง", "แพ็ค", "ฟอง", "ม้วน", "มัด", "เมตร", "ลัง", "ลูก", "เส้น", "หน่วย", "อัน", "หัว", "หวี", "โหล"].sort((a, b) => a.localeCompare(b, 'th'));
-    // --- Element References --- (ดึง element มาเก็บไว้ในตัวแปร)
+    // --- Element References ---
     const shopsContainer = document.getElementById('shops-container');
     const summaryModal = document.getElementById('summaryModal');
     const summaryContent = document.getElementById('summaryContent');
@@ -16,88 +15,99 @@ document.addEventListener('DOMContentLoaded', () => {
     const copySummaryButton = document.getElementById('copy-summary-btn');
     const closeModalActionButton = document.getElementById('close-modal-action-btn');
 
-    // --- Datalist IDs ---
-    const globalItemsDatalistId = 'global-items-list';
-    const globalUnitsDatalistId = 'global-units-list';
+    // --- Constants ---
+    const BASE_UNITS = ["กก.", "กรัม", "ขีด", "กล่อง", "กำ", "กระป๋อง", "ขวด", "ขึ้นฉ่าย", "ชุด", "ชิ้น", "ช่อ", "ซอง", "ต้น", "ถุง", "แผ่น", "แผง", "แถว", "ผล", "ใบ", "ปี๊บ", "พวง", "แพ็ค", "ฟอง", "ม้วน", "มัด", "เมตร", "ลัง", "ลูก", "เส้น", "หน่วย", "อัน", "หัว", "หวี", "โหล"].sort((a, b) => a.localeCompare(b, 'th'));
+    const GLOBAL_ITEMS_DATALIST_ID = 'global-items-list'; // *** ID ของ datalist รายการ ***
+    const GLOBAL_UNITS_DATALIST_ID = 'global-units-list'; // *** ID ของ datalist หน่วยนับ ***
+    const ITEMS_JSON_PATH = 'items.json';
 
-    // --- Data Variables ---
-    let masterItemList = []; // รายการของทั้งหมด (จาก JSON)
-    let shops = [ // โครงสร้างร้านค้าเริ่มต้น (อาจจะโหลด/บันทึกจาก localStorage ในอนาคต)
-        // ใส่ข้อมูลตัวอย่างเริ่มต้นไว้ เผื่อกรณีโหลด JSON ไม่ได้
+    // --- State Variables ---
+    let masterItemList = [];
+    let shops = [];
+    const initialShopsData = [ // ข้อมูลเริ่มต้น (เผื่อโหลด JSON ไม่ได้)
         { id: 'shop-init-1', name: 'ร้านตัวอย่าง 1 (ถ้าโหลด JSON ไม่ได้)', items: [ { quantity: '1', unit: 'กก.', item: 'ตัวอย่าง 1' } ] },
         { id: 'shop-init-2', name: 'ร้านตัวอย่าง 2', items: [ { quantity: '2', unit: 'ชิ้น', item: 'ตัวอย่าง 2' } ] }
     ];
 
-    // --- ฟังก์ชันสร้าง UI ---
+    // --- UI Creation Functions ---
 
     /**
-     * สร้าง Global Datalist สำหรับรายการสินค้า
-     * @param {string[]} items - Array ของชื่อสินค้า
+     * สร้าง/อัปเดต Global Datalist อย่างปลอดภัย
+     * @param {string} listId - ID ของ datalist
+     * @param {string[]} optionsArray - Array ของค่า options
      */
-    function createGlobalDatalist(items) {
-        let datalist = document.getElementById(globalItemsDatalistId);
-        if (!datalist) {
-            console.log("สร้าง <datalist> สำหรับรายการของ...");
-            datalist = document.createElement('datalist');
-            datalist.id = globalItemsDatalistId;
-            document.body.appendChild(datalist);
-        } else {
-            console.log("เคลียร์ <datalist> รายการของเก่า...");
-            datalist.innerHTML = ''; // เคลียร์ option เก่า
-        }
-        // เรียงตามตัวอักษรก่อนเพิ่ม
-        const sortedItems = [...items].sort((a, b) => a.localeCompare(b, 'th'));
-        console.log(`กำลังเพิ่ม ${sortedItems.length} รายการของลงใน datalist...`);
-        sortedItems.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item;
-            datalist.appendChild(option);
-        });
-        console.log("สร้าง datalist รายการของเสร็จสิ้น!");
-    }
+    function createOrUpdateDatalist(listId, optionsArray) {
+        console.log(`กำลังสร้าง/อัปเดต datalist ID: ${listId} ด้วย ${optionsArray.length} options`);
+        let datalist = document.getElementById(listId);
 
-    /**
-     * สร้าง Global Datalist สำหรับหน่วยนับ
-     */
-    function createGlobalUnitDatalist() {
-        let datalist = document.getElementById(globalUnitsDatalistId);
+        // ถ้าไม่มี datalist เดิม, สร้างใหม่
         if (!datalist) {
-            console.log("สร้าง <datalist> สำหรับหน่วยนับ...");
+            console.log(`สร้าง <datalist> ใหม่ ID: ${listId}`);
             datalist = document.createElement('datalist');
-            datalist.id = globalUnitsDatalistId;
+            datalist.id = listId;
+            // ต้อง append เข้าไปใน body *ก่อน* ที่จะเพิ่ม option ได้ในบางกรณี
             document.body.appendChild(datalist);
-        } else {
-            console.log("เคลียร์ <datalist> หน่วยนับเก่า...");
-            datalist.innerHTML = ''; // เคลียร์ option เก่า
+            // ดึงมาอีกครั้งหลัง append เพื่อให้แน่ใจว่าได้ element ที่อยู่ใน DOM แล้ว
+            datalist = document.getElementById(listId);
+            if (!datalist) {
+                 console.error(`!!! ชิบหายละ สร้าง datalist ID: ${listId} แล้วแต่หากลับมาไม่เจอ!`);
+                 return; // ออกจากฟังก์ชันถ้าสร้างแล้วหาไม่เจอ
+            }
         }
-        console.log(`กำลังเพิ่ม ${units.length} หน่วยนับลงใน datalist...`);
-        units.forEach(unit => { // ใช้ array 'units' ที่กำหนดไว้ด้านบน
-            const option = document.createElement('option');
-            option.value = unit;
-            datalist.appendChild(option);
+
+        // เคลียร์ options เก่าทิ้ง
+        datalist.innerHTML = '';
+        // console.log(`เคลียร์ options เก่าใน datalist ID: ${listId}`);
+
+        // ตรวจสอบว่า optionsArray เป็น array จริงๆ
+        if (!Array.isArray(optionsArray)) {
+            console.error(`ข้อมูลสำหรับ datalist ID: ${listId} ไม่ใช่ Array!`, optionsArray);
+            return;
+        }
+
+        // เพิ่ม options ใหม่ (เรียงตามตัวอักษร)
+        const sortedOptions = [...optionsArray].sort((a, b) => a.localeCompare(b, 'th'));
+        let optionCount = 0;
+        sortedOptions.forEach(optionValue => {
+            // ตรวจสอบค่า option ก่อนเพิ่ม
+            if (typeof optionValue === 'string' && optionValue.trim() !== '') {
+                try {
+                    const option = document.createElement('option');
+                    option.value = optionValue;
+                    // option.textContent = optionValue; // อาจจะไม่จำเป็นสำหรับ datalist
+                    datalist.appendChild(option);
+                    optionCount++;
+                } catch (e) {
+                    console.error(`เกิด Error ตอนเพิ่ม option "${optionValue}" ใน datalist ID: ${listId}`, e);
+                }
+            } else {
+                 console.warn(`ข้าม option ที่ไม่ใช่ string หรือเป็นค่าว่างใน datalist ID: ${listId}`, optionValue);
+            }
         });
-        console.log("สร้าง datalist หน่วยนับเสร็จสิ้น!");
+        console.log(`เพิ่ม options ใหม่ ${optionCount} รายการ ลงใน datalist ID: ${listId} สำเร็จ`);
     }
 
     /**
      * สร้าง Input สำหรับหน่วยนับ (ใช้ Datalist)
-     * @param {string} selectedUnit - หน่วยนับที่เลือกไว้ (ถ้ามี)
-     * @returns {HTMLInputElement} Element input สำหรับหน่วยนับ
+     * @param {string} selectedUnit
+     * @returns {HTMLInputElement}
      */
     function createUnitInput(selectedUnit = '') {
         const input = document.createElement('input');
         input.type = 'text';
         input.placeholder = 'หน่วย';
-        input.className = 'unit-input'; // ใช้ class จาก CSS
+        input.className = 'unit-input';
         input.value = selectedUnit;
-        input.setAttribute('list', globalUnitsDatalistId); // *** สำคัญ: ลิงก์กับ Datalist หน่วยนับ ***
+        // *** ตรวจสอบให้แน่ใจว่าใส่ list attribute ถูกต้อง ***
+        input.setAttribute('list', GLOBAL_UNITS_DATALIST_ID);
+        // console.log(`สร้าง Unit Input, ตั้ง list attribute เป็น: ${GLOBAL_UNITS_DATALIST_ID}`);
         return input;
     }
 
     /**
      * สร้าง Input สำหรับรายการสินค้า (ใช้ Global Datalist)
-     * @param {string} selectedItem - รายการที่เลือกไว้ (ถ้ามี)
-     * @returns {HTMLInputElement} Element input สำหรับรายการสินค้า
+     * @param {string} selectedItem
+     * @returns {HTMLInputElement}
      */
     function createItemInput(selectedItem = '') {
         const input = document.createElement('input');
@@ -105,15 +115,17 @@ document.addEventListener('DOMContentLoaded', () => {
         input.placeholder = 'ค้นหา/เลือกรายการ...';
         input.className = 'item-input';
         input.value = selectedItem;
-        input.setAttribute('list', globalItemsDatalistId); // *** สำคัญ: ลิงก์กับ Datalist รายการ ***
+         // *** ตรวจสอบให้แน่ใจว่าใส่ list attribute ถูกต้อง ***
+        input.setAttribute('list', GLOBAL_ITEMS_DATALIST_ID);
+        // console.log(`สร้าง Item Input, ตั้ง list attribute เป็น: ${GLOBAL_ITEMS_DATALIST_ID}`);
         return input;
     }
 
     /**
-     * ตรวจสอบรายการซ้ำภายในร้านค้าเดียวกัน (เมื่อผู้ใช้ออกจากช่องรายการ)
-     * @param {Event} event - Event object จาก onblur
+     * ตรวจสอบรายการซ้ำ (เมื่อ blur จากช่อง item)
+     * @param {Event} event
      */
-    function checkDuplicateItem(event) {
+    function handleItemInputBlur(event) {
         const currentInput = event.target;
         const currentItemName = currentInput.value.trim().toLowerCase();
         const itemRow = currentInput.closest('.item-row');
@@ -122,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentItemName || !itemRow || !itemsListDiv) return;
 
         const allItemInputs = itemsListDiv.querySelectorAll('.item-input');
-        let duplicateCount = 0; // นับจำนวนที่ซ้ำ (รวมตัวเองด้วย)
+        let duplicateCount = 0;
 
         allItemInputs.forEach(input => {
             if (input.value.trim().toLowerCase() === currentItemName) {
@@ -130,24 +142,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // ลบ highlight เก่าก่อนเสมอ
-        itemRow.style.backgroundColor = '';
+        itemRow.style.backgroundColor = ''; // ลบ highlight เก่า
         itemRow.style.outline = '';
 
-        if (duplicateCount > 1) { // ถ้าเจอมากกว่า 1 แสดงว่าซ้ำกับรายการอื่น
+        if (duplicateCount > 1) {
             console.warn(`ตรวจเจอรายการซ้ำ: "${currentInput.value.trim()}"`);
             alert(`⚠️ เฮ้ยเพื่อน! รายการ "${currentInput.value.trim()}" มันมีอยู่แล้วในร้านนี้นะ เช็คดีๆ!`);
-            itemRow.style.backgroundColor = '#fffbeb'; // Highlight สีเหลืองอ่อนๆ
-            itemRow.style.outline = '2px solid #facc15'; // ขอบสีเหลือง
+            itemRow.style.backgroundColor = '#fffbeb';
+            itemRow.style.outline = '2px solid #facc15';
         }
     }
 
-
     /**
-     * สร้างแถวรายการสินค้า (ใช้ Unit Input และเพิ่ม event listener ตรวจของซ้ำ)
-     * @param {string} shopId - ID ของร้านค้า
-     * @param {object} itemData - ข้อมูลรายการสินค้า { quantity, unit, item }
-     * @returns {HTMLDivElement} Element div ของแถวรายการสินค้า
+     * สร้างแถวรายการสินค้า 1 แถว
+     * @param {string} shopId
+     * @param {object} itemData
+     * @returns {HTMLDivElement}
      */
     function createItemRow(shopId, itemData = { quantity: '', unit: '', item: '' }) {
         const div = document.createElement('div');
@@ -162,10 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
         quantityInput.className = 'quantity-input';
 
         const unitInput = createUnitInput(itemData.unit); // ใช้ Unit Input
+        const itemInput = createItemInput(itemData.item); // ใช้ Item Input
 
-        const itemInput = createItemInput(itemData.item);
-        // เพิ่ม Event Listener ตรวจของซ้ำตอน blur (เมื่อ focus ออกจากช่อง)
-        itemInput.addEventListener('blur', checkDuplicateItem);
+        // เพิ่ม Event Listener ตรวจของซ้ำตอน blur
+        itemInput.addEventListener('blur', handleItemInputBlur);
 
         const removeBtnContainer = document.createElement('div');
         removeBtnContainer.className = 'remove-btn-container';
@@ -174,10 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
         removeBtn.className = 'remove-btn';
         removeBtn.title = "ลบรายการนี้";
         removeBtn.type = "button";
-        removeBtn.onclick = () => div.remove();
+        removeBtn.addEventListener('click', () => div.remove());
         removeBtnContainer.appendChild(removeBtn);
 
-        // --- ประกอบร่างตาม grid area ---
         div.appendChild(quantityInput);
         div.appendChild(unitInput);
         div.appendChild(itemInput);
@@ -187,11 +196,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * สร้างส่วนของร้านค้า
-     * @param {object} shop - ข้อมูลร้านค้า { id, name, items }
-     * @returns {HTMLDivElement} Element div ของส่วนร้านค้า
+     * สร้างส่วน UI ของร้านค้า 1 ร้าน
+     * @param {object} shop
+     * @returns {HTMLDivElement | null}
      */
     function createShopSection(shop) {
+        if (!shop || typeof shop !== 'object' || !shop.id || !shop.name) {
+            console.error("ข้อมูลร้านค้าไม่ถูกต้อง:", shop);
+            return null;
+        }
+
         const section = document.createElement('div');
         section.id = shop.id;
         section.className = 'shop-section';
@@ -203,25 +217,22 @@ document.addEventListener('DOMContentLoaded', () => {
         shopNameInput.value = shop.name;
         shopNameInput.className = 'shop-name-input';
         shopNameInput.placeholder = "ใส่ชื่อร้านค้า...";
-        shopNameInput.addEventListener('change', (e) => { // ใช้ change แทน onchange
+        shopNameInput.addEventListener('change', (e) => {
              const currentShop = shops.find(s => s.id === shop.id);
              if (currentShop) currentShop.name = e.target.value;
-             console.log(`เปลี่ยนชื่อร้าน ${shop.id} เป็น: ${e.target.value}`);
-             // อาจจะเพิ่มการบันทึกอัตโนมัติที่นี่
+             // TODO: Save data
         });
          const deleteShopBtn = document.createElement('button');
          deleteShopBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>`;
          deleteShopBtn.className = 'delete-shop-btn';
          deleteShopBtn.title = "ลบร้านค้านี้";
          deleteShopBtn.type = "button";
-         deleteShopBtn.addEventListener('click', () => { // ใช้ addEventListener
-             if (confirm(`⚠️ ยืนยันจะลบร้าน "${shopNameInput.value}" จริงดิ? ลบแล้วหายเลยนะเพื่อน!`)) {
-                console.log(`กำลังลบร้าน: ${shop.id} (${shopNameInput.value})`);
+         deleteShopBtn.addEventListener('click', () => {
+             if (confirm(`⚠️ ยืนยันจะลบร้าน "${shopNameInput.value}" จริงดิ?`)) {
                 section.remove();
                 shops = shops.filter(s => s.id !== shop.id);
                 updateOverallSummaryButtonVisibility();
-                console.log("ร้านถูกลบแล้ว");
-                // อาจจะเพิ่มการบันทึกข้อมูลร้านค้าที่นี่
+                // TODO: Save data
              }
          });
         headerDiv.appendChild(shopNameInput);
@@ -230,10 +241,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const itemsDiv = document.createElement('div');
         itemsDiv.className = 'items-list';
-        // สร้าง item row จากข้อมูลที่มีอยู่
         if (shop.items && Array.isArray(shop.items)) {
             shop.items.forEach(item => {
-                itemsDiv.appendChild(createItemRow(shop.id, item));
+                if (item && typeof item === 'object') {
+                     itemsDiv.appendChild(createItemRow(shop.id, item));
+                }
             });
         }
         section.appendChild(itemsDiv);
@@ -244,8 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addItemBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg> เพิ่มรายการ`;
         addItemBtn.className = 'action-button add-item-btn';
         addItemBtn.type = "button";
-        addItemBtn.addEventListener('click', () => { // ใช้ addEventListener
-            console.log(`เพิ่มรายการใหม่ในร้าน: ${shop.id}`);
+        addItemBtn.addEventListener('click', () => {
             const newItemRow = createItemRow(shop.id);
             itemsDiv.appendChild(newItemRow);
              newItemRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -258,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         summarizeBtn.textContent = '📋 สรุปรายการร้านนี้';
         summarizeBtn.className = 'action-button summarize-btn';
         summarizeBtn.type = "button";
-        summarizeBtn.addEventListener('click', () => showSummary(shop.id)); // ใช้ addEventListener
+        summarizeBtn.addEventListener('click', () => showSummary(shop.id));
         buttonsDiv.appendChild(addItemBtn);
         buttonsDiv.appendChild(summarizeBtn);
         section.appendChild(buttonsDiv);
@@ -266,142 +277,129 @@ document.addEventListener('DOMContentLoaded', () => {
         return section;
     }
 
-
-    // --- ฟังก์ชันการทำงานหลัก ---
+    // --- Core Logic Functions ---
 
     /**
-     * แสดงฟอร์มทั้งหมด
+     * แสดงผลร้านค้าทั้งหมด
      */
     function renderShops() {
-        console.log("กำลังแสดงผลร้านค้า...");
-        shopsContainer.innerHTML = ''; // เคลียร์ร้านค้าเก่า
+        console.log(">> renderShops: เริ่มแสดงผลร้านค้า...");
+        if (!shopsContainer) return;
+        shopsContainer.innerHTML = '';
+
         if (!shops || shops.length === 0) {
-            console.log("ไม่มีข้อมูลร้านค้าที่จะแสดง");
-            shopsContainer.innerHTML = '<p class="text-center text-gray-500 my-4">ยังไม่มีร้านค้า กดปุ่ม "เพิ่มร้านค้าใหม่" เลยเพื่อน!</p>';
+            shopsContainer.innerHTML = '<p style="text-align: center; color: grey; margin: 1rem 0;">ยังไม่มีร้านค้า กดปุ่ม "เพิ่มร้านค้าใหม่" เลยเพื่อน!</p>';
         } else {
-            console.log(`พบ ${shops.length} ร้านค้า กำลังสร้าง UI...`);
             shops.forEach(shop => {
-                if (shop && shop.id) { // เช็คว่าข้อมูล shop ถูกต้อง
-                     shopsContainer.appendChild(createShopSection(shop));
-                } else {
-                    console.warn("เจอข้อมูลร้านค้าไม่ถูกต้อง:", shop);
+                const shopSection = createShopSection(shop);
+                if (shopSection) {
+                    shopsContainer.appendChild(shopSection);
                 }
             });
         }
         updateOverallSummaryButtonVisibility();
-        console.log("แสดงผลร้านค้าเสร็จสิ้น");
+        console.log(">> renderShops: แสดงผลร้านค้าเสร็จสิ้น");
     }
 
      /**
-      * อัปเดตการแสดงผลปุ่มสรุปทั้งหมด (แบบ Fixed)
+      * อัปเดตการแสดงผลปุ่มสรุปทั้งหมด
       */
      function updateOverallSummaryButtonVisibility() {
-         const shopSections = shopsContainer.querySelectorAll('.shop-section');
-         const shouldShow = shopSections.length > 0;
-         console.log(`จำนวนร้านค้า: ${shopSections.length}, แสดงปุ่มสรุปทั้งหมด: ${shouldShow}`);
-         overallSummaryContainer.style.display = shouldShow ? 'block' : 'none';
+         const shopSectionsExist = shopsContainer && shopsContainer.querySelector('.shop-section') !== null;
+         const shouldShow = shopSectionsExist;
+         if (overallSummaryContainer) {
+            overallSummaryContainer.style.display = shouldShow ? 'block' : 'none';
+         }
      }
 
     /**
      * เพิ่มร้านค้าใหม่
      */
     function addShop() {
-        console.log("กำลังเพิ่มร้านค้าใหม่...");
+        console.log(">> addShop: กำลังเพิ่มร้านค้าใหม่...");
         const newShopId = `shop-${Date.now()}`;
-        const newShopData = {
-            id: newShopId,
-            name: 'ร้านค้าใหม่ (คลิกแก้ชื่อ)',
-            items: []
-        };
+        const newShopData = { id: newShopId, name: 'ร้านค้าใหม่ (คลิกแก้ชื่อ)', items: [] };
         shops.push(newShopData);
+
         const newShopSection = createShopSection(newShopData);
-        shopsContainer.appendChild(newShopSection);
-         newShopSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-         setTimeout(() => {
-             const nameInput = newShopSection.querySelector('.shop-name-input');
-             if (nameInput) {
-                 nameInput.focus();
-                 nameInput.select();
-             }
-         }, 300);
-        updateOverallSummaryButtonVisibility();
-        console.log(`เพิ่มร้านค้าใหม่ ID: ${newShopId} เรียบร้อย`);
-        // อาจจะเพิ่มการบันทึกข้อมูลร้านค้าที่นี่
+        if (newShopSection && shopsContainer) {
+            const placeholder = shopsContainer.querySelector('p');
+            if (placeholder && placeholder.textContent.includes("ยังไม่มีร้านค้า")) {
+                placeholder.remove();
+            }
+            shopsContainer.appendChild(newShopSection);
+             newShopSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+             setTimeout(() => {
+                 const nameInput = newShopSection.querySelector('.shop-name-input');
+                 if (nameInput) { nameInput.focus(); nameInput.select(); }
+             }, 300);
+            updateOverallSummaryButtonVisibility();
+            console.log(`>> addShop: เพิ่มร้านค้า ID: ${newShopId} เรียบร้อย`);
+            // TODO: Save data
+        } else {
+            console.error(">> addShop: ไม่สามารถเพิ่มร้านค้าใหม่ลง UI ได้");
+        }
     }
 
     /**
-     * เก็บข้อมูลจากฟอร์มสำหรับสรุปรายการ
-     * @param {string | null} shopId - ID ของร้านที่ต้องการสรุป (null คือสรุปทั้งหมด)
-     * @returns {object[]} Array ของข้อมูลร้านค้าและรายการสินค้า
+     * เก็บข้อมูลจากฟอร์ม
+     * @param {string | null} shopId
+     * @returns {object[]}
      */
     function getOrderData(shopId = null) {
-        console.log(`กำลังดึงข้อมูลรายการสั่งซื้อสำหรับ shopId: ${shopId || 'ทั้งหมด'}`);
         const orderData = [];
         const shopSections = shopId
-            ? [document.getElementById(shopId)]
-            : shopsContainer.querySelectorAll('.shop-section');
+            ? (shopsContainer ? [shopsContainer.querySelector(`#${shopId}`)] : [])
+            : (shopsContainer ? shopsContainer.querySelectorAll('.shop-section') : []);
 
         shopSections.forEach(section => {
-            if (!section || !section.id) return; // ข้ามถ้า element ไม่ถูกต้อง
-
+            if (!section || !section.id) return;
             const shopNameInput = section.querySelector('.shop-name-input');
             const shopName = shopNameInput ? shopNameInput.value.trim() : 'ร้านค้าไม่มีชื่อ';
             const items = [];
             section.querySelectorAll('.item-row').forEach(row => {
                 const quantityInput = row.querySelector('.quantity-input');
-                const unitInput = row.querySelector('.unit-input');
+                const unitInput = row.querySelector('.unit-input'); // อ่านจาก unit-input
                 const itemInput = row.querySelector('.item-input');
-
                 if (quantityInput && unitInput && itemInput) {
                     const quantity = quantityInput.value.trim();
                     const unit = unitInput.value.trim();
                     const itemName = itemInput.value.trim();
-
-                    if (itemName && quantity) { // ต้องมีทั้งชื่อและจำนวน
-                        items.push({
-                            quantity: quantity,
-                            unit: unit || '?', // ถ้าหน่วยว่าง ใส่ ?
-                            item: itemName
-                        });
+                    if (itemName && quantity) {
+                        items.push({ quantity: quantity, unit: unit || '?', item: itemName });
                     }
                 }
             });
-            console.log(`ร้าน "${shopName}" มี ${items.length} รายการ`);
-
-            // เงื่อนไขการเก็บข้อมูลร้าน (เหมือนเดิม)
             if (shopId !== null || items.length > 0 || (shopId === null && shopName !== 'ร้านค้าใหม่ (คลิกแก้ชื่อ)')) {
                  orderData.push({ shopName: shopName, items: items });
              }
         });
-        console.log("ดึงข้อมูลรายการสั่งซื้อเสร็จสิ้น:", orderData);
         return orderData;
     }
 
     /**
-     * แสดง Modal สรุปรายการ
-     * @param {string | null} shopId - ID ของร้านที่ต้องการสรุป (null คือสรุปทั้งหมด)
+     * แสดง Modal สรุป
+     * @param {string | null} shopId
      */
     function showSummary(shopId = null) {
-        console.log(`กำลังแสดงสรุปสำหรับ shopId: ${shopId || 'ทั้งหมด'}`);
+        if (!summaryModal || !summaryContent) return;
         const data = getOrderData(shopId);
         summaryContent.innerHTML = '';
-        copyStatus.style.display = 'none';
+        if (copyStatus) copyStatus.style.display = 'none';
 
         const dataToShow = shopId === null
             ? data.filter(shop => shop.items.length > 0 || shop.shopName !== 'ร้านค้าใหม่ (คลิกแก้ชื่อ)')
             : data;
 
         if (dataToShow.length === 0) {
-             summaryContent.innerHTML = '<p class="text-center text-gray-500 py-4">ไม่มีรายการสั่งซื้อว่ะเพื่อน</p>';
-             console.log("ไม่มีรายการที่จะแสดงในสรุป");
+             summaryContent.innerHTML = '<p style="text-align: center; color: grey; padding: 1rem 0;">ไม่มีรายการสั่งซื้อว่ะเพื่อน</p>';
         } else {
-            console.log(`กำลังสร้าง UI สรุปสำหรับ ${dataToShow.length} ร้านค้า`);
             dataToShow.forEach(shopData => {
                 const shopDiv = document.createElement('div');
                 const title = document.createElement('h3');
                 title.textContent = `🛒 ${shopData.shopName}`;
                 shopDiv.appendChild(title);
-                if (shopData.items.length > 0) {
+                if (shopData.items && shopData.items.length > 0) {
                     const list = document.createElement('ul');
                     shopData.items.forEach(item => {
                         const listItem = document.createElement('li');
@@ -418,28 +416,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         summaryModal.style.display = 'block';
-        console.log("แสดง Modal สรุปเรียบร้อย");
     }
 
     /**
-     * ปิด Modal สรุปรายการ
+     * ปิด Modal
      */
     function closeModal() {
-        summaryModal.style.display = 'none';
-        console.log("ปิด Modal สรุป");
+        if (summaryModal) summaryModal.style.display = 'none';
     }
 
     /**
-     * คัดลอกสรุปรายการไปยัง Clipboard
+     * คัดลอกสรุป
      */
     function copySummaryToClipboard() {
-        console.log("กำลังเตรียมคัดลอกสรุป...");
+        if (!summaryContent) return;
         let textToCopy = "";
         const shopDivs = summaryContent.querySelectorAll(':scope > div');
 
          if(shopDivs.length === 0 && summaryContent.querySelector('p')) {
              textToCopy = summaryContent.querySelector('p').textContent;
-             console.log("คัดลอกข้อความ 'ไม่มีรายการ'");
          } else {
              shopDivs.forEach((shopDiv, index) => {
                 const titleElement = shopDiv.querySelector('h3');
@@ -456,89 +451,120 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (index < shopDivs.length - 1) { textToCopy += "\n"; }
             });
-             console.log("ข้อความที่จะคัดลอก:", textToCopy.trim());
          }
 
-        navigator.clipboard.writeText(textToCopy.trim())
-            .then(() => {
-                console.log("คัดลอกไปยัง Clipboard สำเร็จ!");
-                copyStatus.style.display = 'block';
-                setTimeout(() => { copyStatus.style.display = 'none'; }, 2500);
-            })
-            .catch(err => {
-                console.error('ชิบ! คัดลอกไม่สำเร็จ:', err);
-                alert('อุ๊ปส์! ก๊อปไม่ได้ว่ะเพื่อน ลองใหม่ดิ๊');
-            });
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy.trim())
+                .then(() => {
+                    if (copyStatus) {
+                        copyStatus.style.display = 'block';
+                        setTimeout(() => { copyStatus.style.display = 'none'; }, 2500);
+                    }
+                })
+                .catch(err => {
+                    console.error('Clipboard copy failed:', err);
+                    alert('อุ๊ปส์! ก๊อปไม่ได้ว่ะเพื่อน ลองใหม่ดิ๊');
+                });
+        } else {
+            alert('เบราว์เซอร์นี้อาจจะไม่รองรับการคัดลอกอัตโนมัติ');
+        }
     }
 
-    // --- ฟังก์ชันโหลดข้อมูลและเริ่มต้น ---
+    // --- Initialization Function ---
 
     /**
-     * ฟังก์ชันหลักในการโหลดข้อมูลรายการสินค้าจาก JSON และเริ่มการทำงาน
+     * ฟังก์ชันหลัก เริ่มต้นแอป
      */
     async function initializeApp() {
-        console.log("เริ่มต้น initializeApp...");
+        console.log("--- เริ่มต้น initializeApp ---");
+        if (!loadingErrorDiv) {
+            console.error("หา #loading-error-message ไม่เจอ!");
+            alert("เกิดข้อผิดพลาด: ไม่พบ element loading-error-message"); // แจ้งเตือนถ้า element สำคัญหาย
+            return; // ออกถ้า element หลักหาย
+        }
+
         loadingErrorDiv.textContent = '⏳ แป๊บนะเพื่อน กำลังโหลดลิสต์ของ...';
         loadingErrorDiv.style.display = 'block';
         loadingErrorDiv.style.backgroundColor = '#fffbeb'; // Reset style
         loadingErrorDiv.style.color = '#b45309';
         loadingErrorDiv.style.borderColor = '#fef3c7';
+
+        let fetchSuccess = false; // ตัวแปรเช็คว่า fetch สำเร็จไหม
+
         try {
-            const jsonPath = 'items.json'; // ชื่อไฟล์ JSON
-            console.log(`กำลัง fetch ข้อมูลจาก: ${jsonPath}`);
-            const response = await fetch(jsonPath);
-            console.log(`สถานะการตอบกลับจาก fetch: ${response.status}`);
+            console.log(`กำลัง fetch: ${ITEMS_JSON_PATH}`);
+            const response = await fetch(ITEMS_JSON_PATH, { cache: 'no-cache' }); // ลองไม่ใช้ cache
+            console.log(`Fetch status: ${response.status}`);
 
             if (!response.ok) {
-                throw new Error(`โหลดไฟล์ ${jsonPath} ไม่ได้ว่ะเพื่อน (${response.status})`);
+                throw new Error(`โหลด ${ITEMS_JSON_PATH} ไม่ได้ (${response.status})`);
             }
 
-            // ลองอ่านเป็น text ก่อนเพื่อ debug
-            // const text = await response.text();
-            // console.log("เนื้อหาไฟล์ JSON (text):", text);
-            // masterItemList = JSON.parse(text); // แล้วค่อย parse
+            const jsonData = await response.json();
+            console.log(`Parse JSON สำเร็จ`);
 
-            masterItemList = await response.json(); // แปลง JSON เป็น Array
-            console.log(`โหลดข้อมูล JSON สำเร็จ, จำนวนรายการ: ${masterItemList.length}`);
-
-            if (!Array.isArray(masterItemList)) {
-                throw new Error('ข้อมูลใน items.json ไม่ใช่ Array ว่ะเพื่อน เช็คไฟล์ดิ๊');
+            if (!Array.isArray(jsonData)) {
+                throw new Error(`ข้อมูลใน ${ITEMS_JSON_PATH} ไม่ใช่ Array`);
             }
+
+            masterItemList = jsonData; // เก็บข้อมูล
+            fetchSuccess = true; // ตั้งค่าว่า fetch สำเร็จ
+            console.log(`โหลดรายการของ ${masterItemList.length} รายการ สำเร็จ`);
 
             // --- โหลดสำเร็จ ---
-            loadingErrorDiv.textContent = `✅ โหลดลิสต์ของ ${masterItemList.length} รายการเรียบร้อย!`;
-            loadingErrorDiv.style.backgroundColor = '#f0fdf4'; // สีเขียวอ่อน
-            loadingErrorDiv.style.color = '#15803d'; // สีเขียวเข้ม
-            loadingErrorDiv.style.borderColor = '#dcfce7'; // สีเขียว
-            setTimeout(() => { loadingErrorDiv.style.display = 'none'; }, 2500); // ซ่อนหลังจากแสดงผลสำเร็จ
+            loadingErrorDiv.textContent = `✅ เยี่ยม! โหลดลิสต์ของ ${masterItemList.length} รายการเรียบร้อย!`;
+            loadingErrorDiv.style.backgroundColor = '#f0fdf4';
+            loadingErrorDiv.style.color = '#15803d';
+            loadingErrorDiv.style.borderColor = '#dcfce7';
+            setTimeout(() => { loadingErrorDiv.style.display = 'none'; }, 3000); // ซ่อนช้าลงหน่อย
 
-            createGlobalDatalist(masterItemList); // สร้าง datalist รายการของ
-            createGlobalUnitDatalist(); // สร้าง datalist หน่วยนับ
-            renderShops(); // แสดงผลร้านค้า
+            // สร้าง datalist รายการของ
+            createOrUpdateDatalist(GLOBAL_ITEMS_DATALIST_ID, masterItemList);
 
         } catch (error) {
-            console.error('ชิบหายละ โหลด items.json ไม่ได้:', error);
-            loadingErrorDiv.textContent = `❌ โทษทีเพื่อน โหลดลิสต์ของไม่ได้ (${error.message}) เช็คไฟล์ items.json ด่วนๆ! (อาจจะต้องเปิดผ่าน Live Server ถ้าเปิดไฟล์ตรงๆ)`;
-            loadingErrorDiv.style.backgroundColor = '#fee2e2'; // สีแดงอ่อน
-            loadingErrorDiv.style.color = '#991b1b'; // สีแดงเข้ม
-            loadingErrorDiv.style.borderColor = '#fecaca'; // สีแดง
-            loadingErrorDiv.style.display = 'block'; // แสดงข้อความ error ค้างไว้
+            // --- เกิดข้อผิดพลาด ---
+            console.error('!!! เกิดข้อผิดพลาดตอนโหลด items.json:', error);
+            loadingErrorDiv.textContent = `❌ โทษทีเพื่อน โหลดลิสต์ของไม่ได้ (${error.message}) ลองเช็คไฟล์ items.json หรือเปิดผ่าน Live Server ดูนะ`;
+            loadingErrorDiv.style.backgroundColor = '#fee2e2';
+            loadingErrorDiv.style.color = '#991b1b';
+            loadingErrorDiv.style.borderColor = '#fecaca';
+            loadingErrorDiv.style.display = 'block'; // แสดงค้างไว้
 
-            // ถึงแม้จะโหลด list ไม่ได้ ก็ยังแสดงโครงสร้างร้านค้า และ datalist หน่วยนับ
-            console.warn("ไม่สามารถโหลด masterItemList ได้ จะใช้ข้อมูลร้านค้าเริ่มต้นแทน");
-            createGlobalUnitDatalist(); // สร้าง datalist หน่วยนับไว้ก่อน
-            renderShops(); // แสดงร้านค้าตัวอย่าง
+            // ใช้ข้อมูลร้านค้าเริ่มต้นเมื่อโหลด JSON ไม่ได้
+            shops = initialShopsData;
+            console.warn("ใช้ข้อมูลร้านค้าเริ่มต้นแทน");
+
+        } finally {
+            // --- ทำงานส่วนนี้เสมอ ---
+            console.log("สร้าง datalist หน่วยนับ...");
+            createOrUpdateDatalist(GLOBAL_UNITS_DATALIST_ID, BASE_UNITS); // สร้าง datalist หน่วยนับเสมอ
+
+            // ถ้า fetch ไม่สำเร็จ และ shops ยังว่างอยู่ ให้ใช้ initial data
+            if (!fetchSuccess && shops.length === 0) {
+                 shops = initialShopsData;
+                 console.log("ใช้ข้อมูลร้านค้าเริ่มต้น (ใน finally)");
+            } else if (fetchSuccess && shops.length === 0) {
+                 // ถ้า fetch สำเร็จ แต่ยังไม่มีร้านค้า (อาจจะโหลดข้อมูลร้านจากที่อื่น)
+                 // ตรงนี้อาจจะปล่อยให้ว่าง หรือใช้ initial data ก็ได้
+                 console.log("โหลดรายการของสำเร็จ แต่ยังไม่มีข้อมูลร้านค้า");
+                 // shops = initialShopsData; // หรือปล่อยว่างรอ user เพิ่มเอง
+            }
+
+            console.log("กำลังจะ renderShops...");
+            renderShops(); // แสดงผลร้านค้า (อาจจะเป็นข้อมูลเริ่มต้น)
+            console.log("--- initializeApp เสร็จสิ้น ---");
         }
     }
 
     // --- ตั้งค่า Event Listeners หลัก ---
-    if (addShopButton) addShopButton.addEventListener('click', addShop);
-    if (overallSummaryButton) overallSummaryButton.addEventListener('click', () => showSummary());
-    if (modalCloseButton) modalCloseButton.addEventListener('click', closeModal);
-    if (copySummaryButton) copySummaryButton.addEventListener('click', copySummaryToClipboard);
-    if (closeModalActionButton) closeModalActionButton.addEventListener('click', closeModal);
+    // ใช้ Optional Chaining (?) เพื่อป้องกัน error ถ้า element ไม่มีอยู่จริง
+    addShopButton?.addEventListener('click', addShop);
+    overallSummaryButton?.addEventListener('click', () => showSummary());
+    modalCloseButton?.addEventListener('click', closeModal);
+    copySummaryButton?.addEventListener('click', copySummaryToClipboard);
+    closeModalActionButton?.addEventListener('click', closeModal);
 
-    // ปิด Modal ถ้าคลิกนอกพื้นที่ Modal content
+    // ปิด Modal ถ้าคลิกนอกพื้นที่
     window.addEventListener('click', (event) => {
         if (event.target == summaryModal) {
             closeModal();
@@ -546,6 +572,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- เริ่มต้นการทำงาน ---
-    initializeApp(); // เรียกฟังก์ชันหลัก
+    initializeApp();
 
 }); // ปิด DOMContentLoaded listener
