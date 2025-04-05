@@ -3,55 +3,221 @@
 
 html { scroll-behavior: smooth; }
 body {
-    font-family: 'Sarabun', sans-serif; background-color: #f3f4f6;
-    padding-bottom: 90px; margin: 0; color: #1f2937;
+    font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; /* สีพื้นหลังเทาอ่อน */
+    padding-bottom: 90px; /* กันที่ให้ปุ่มสรุปลอย */
+    margin: 0;
+    color: #1f2937; /* สีตัวหนังสือหลัก */
 }
 
 /* --- Layout หลัก --- */
-.container { width: 100%; max-width: 1024px; margin: auto; padding: 1rem 0.75rem; }
-h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; color: #4338ca; }
+.container {
+    width: 100%;
+    max-width: 1024px; /* ความกว้างสูงสุด */
+    margin: auto; /* จัดกลาง */
+    padding: 1rem 0.75rem; /* ระยะห่างภายใน */
+}
+h1 {
+    font-size: 1.875rem; /* ขนาดตัวอักษรใหญ่ */
+    line-height: 2.25rem;
+    font-weight: 700; /* ตัวหนา */
+    margin-bottom: 1.5rem; /* ระยะห่างด้านล่าง */
+    text-align: center; /* จัดกลาง */
+    color: #4338ca; /* สีม่วงน้ำเงิน */
+}
 
 /* --- ส่วนของร้านค้า --- */
-.shop-section { border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem 1rem 1.5rem 1rem; margin-bottom: 1.5rem; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-.shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; }
-.shop-name-input { font-size: 1.4rem; font-weight: 600; color: #1f2937; border: none; border-bottom: 2px solid transparent; padding-bottom: 4px; margin-right: 0.5rem; outline: none; transition: border-color 0.3s ease; width: calc(100% - 40px); background-color: transparent; flex-grow: 1; }
-.shop-name-input:focus { border-bottom-color: #3b82f6; }
-.delete-shop-btn { background-color: transparent; color: #ef4444; padding: 0.35rem; border-radius: 9999px; transition: background-color 0.2s ease, color 0.2s ease; flex-shrink: 0; border: none; cursor: pointer; }
-.delete-shop-btn svg { width: 22px; height: 22px; display: block; }
-.delete-shop-btn:hover { background-color: #fee2e2; color: #dc2626; }
+.shop-section {
+    border: 1px solid #e5e7eb; /* เส้นขอบเทา */
+    border-radius: 0.75rem; /* มุมโค้ง */
+    padding: 1rem 1rem 1.5rem 1rem; /* ระยะห่างภายใน */
+    margin-bottom: 1.5rem; /* ระยะห่างระหว่างร้าน */
+    background-color: #ffffff; /* พื้นหลังขาว */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* เงา */
+}
+.shop-header {
+    display: flex; /* จัดแนวนอน */
+    justify-content: space-between; /* จัดให้ชื่อร้านกับปุ่มลบอยู่คนละฝั่ง */
+    align-items: center; /* จัดแนวตั้งให้อยู่กลาง */
+    margin-bottom: 1rem; /* ระยะห่างล่าง */
+    padding-bottom: 0.5rem; /* ระยะห่างล่าง */
+    border-bottom: 1px solid #e5e7eb; /* เส้นคั่น */
+}
+.shop-name-input { /* ช่องใส่ชื่อร้าน */
+    font-size: 1.4rem; /* ขนาดตัวอักษร */
+    font-weight: 600; /* ความหนา */
+    color: #1f2937; /* สีตัวหนังสือ */
+    border: none; /* ไม่มีเส้นขอบ */
+    border-bottom: 2px solid transparent; /* เส้นใต้ใสๆ (จะเปลี่ยนสีตอน focus) */
+    padding-bottom: 4px;
+    margin-right: 0.5rem; /* ระยะห่างจากปุ่มลบ */
+    outline: none; /* เอา outline ตอน focus ออก */
+    transition: border-color 0.3s ease; /* ทำให้เปลี่ยนสีเส้นใต้นุ่มนวล */
+    width: calc(100% - 40px); /* ความกว้าง (เผื่อที่ให้ปุ่มลบ) */
+    background-color: transparent; /* พื้นหลังใส */
+    flex-grow: 1; /* ให้ยืดเต็มพื้นที่ที่เหลือ */
+}
+.shop-name-input:focus { /* ตอน focus ที่ช่องชื่อร้าน */
+    border-bottom-color: #3b82f6; /* เปลี่ยนสีเส้นใต้เป็นสีฟ้า */
+}
+.delete-shop-btn { /* ปุ่มลบร้าน (X) */
+    background-color: transparent; /* พื้นหลังใส */
+    color: #ef4444; /* สีแดง */
+    padding: 0.35rem; /* ระยะห่างภายใน */
+    border-radius: 9999px; /* ทำให้เป็นวงกลม */
+    transition: background-color 0.2s ease, color 0.2s ease; /* transition ตอน hover */
+    flex-shrink: 0; /* ไม่ให้ปุ่มหด */
+    border: none; /* ไม่มีเส้นขอบ */
+    cursor: pointer; /* เปลี่ยน cursor เป็นรูปมือ */
+}
+.delete-shop-btn svg { width: 22px; height: 22px; display: block; } /* ขนาดไอคอน */
+.delete-shop-btn:hover { /* ตอนเอาเมาส์ชี้ */
+    background-color: #fee2e2; /* พื้นหลังแดงอ่อน */
+    color: #dc2626; /* สีแดงเข้ม */
+}
 
-/* --- แถวรายการสินค้า --- */
-.items-list { }
-.item-row { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "quantity unit" "item item" "delete delete"; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
-@media (min-width: 640px) { .item-row { grid-template-columns: 4.5rem 5.5rem 1fr auto; grid-template-areas: "quantity unit item delete"; gap: 0.6rem; margin-bottom: 0.75rem; } .item-row .remove-btn-container { grid-area: delete; justify-self: end; } }
-.item-row .quantity-input { grid-area: quantity; text-align: center; }
-.item-row .unit-input { grid-area: unit; }
-.item-row .item-input { grid-area: item; min-width: 0;}
-.item-row .remove-btn-container { grid-area: delete; justify-self: end; line-height: 0; }
-.item-row input { border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.6rem 0.75rem; font-size: 1rem; line-height: 1.3; transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; width: 100%; box-sizing: border-box; }
-.item-row input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
-.remove-btn { padding: 0.6rem; background-color: #ef4444; color: white; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; border: none; cursor: pointer; line-height: 1; }
-.remove-btn svg { width: 18px; height: 18px; display: block; }
-.remove-btn:hover { background-color: #dc2626; }
+/* --- V14: ส่วนกรอกรายการ (Item Entry Area) --- */
+.item-entry-area {
+    display: grid; /* ใช้ CSS Grid จัด layout */
+    /* กำหนดคอลัมน์: จำนวน(แคบ) หน่วย(แคบ) ชื่อรายการ(กว้างสุด) ปุ่มบวก(แคบ) */
+    grid-template-columns: 4.5rem 5.5rem 1fr auto;
+    gap: 0.6rem; /* ระยะห่างระหว่างช่อง */
+    align-items: center; /* จัดให้ element ในแถวอยู่กลางแนวตั้ง */
+    margin-bottom: 0.5rem; /* ระยะห่างด้านล่างเล็กน้อย */
+    position: relative; /* สำหรับจัดตำแหน่งข้อความสถานะ */
+}
+/* Responsive layout สำหรับจอเล็ก (น้อยกว่า 640px) */
+@media (max-width: 639px) {
+    .item-entry-area {
+        /* เปลี่ยนเป็น 2 คอลัมน์ */
+        grid-template-columns: 1fr 1fr;
+        /* กำหนดพื้นที่ให้แต่ละส่วน */
+        grid-template-areas:
+            "quantity unit"     /* แถวบน: จำนวน | หน่วย */
+            "item item"         /* แถวกลาง: ชื่อรายการ (เต็มแถว) */
+            "add add";          /* แถวล่าง: ปุ่มบวก (เต็มแถว) */
+        gap: 0.5rem; /* ลดระยะห่าง */
+    }
+    /* กำหนดให้ element ไปอยู่ใน area ที่ถูกต้อง */
+    .item-entry-area .entry-quantity { grid-area: quantity; }
+    .item-entry-area .entry-unit { grid-area: unit; }
+    .item-entry-area .entry-item { grid-area: item; }
+    .item-entry-area .entry-add-btn {
+        grid-area: add;
+        justify-self: end; /* จัดปุ่มบวกไปชิดขวาในพื้นที่ */
+        width: auto; /* ทำให้ปุ่มไม่ยืดเต็มแถว */
+        padding: 0.6rem 1rem; /* ใช้ padding ปกติ */
+    }
+}
 
-/* --- ปุ่มดำเนินการทั่วไป --- */
-.action-button { font-weight: 600; padding: 0.7rem 1.1rem; border-radius: 0.5rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.95rem; line-height: 1; border: none; cursor: pointer; transition: all 0.2s ease-in-out; text-align: center; width: 100%; }
-@media (min-width: 640px) { .action-button { width: auto; } }
+/* สไตล์สำหรับ input ทุกช่องใน Entry Area */
+.item-entry-area input {
+    border: 1px solid #d1d5db; /* เส้นขอบเทาอ่อน */
+    border-radius: 0.375rem; /* มุมโค้ง */
+    padding: 0.6rem 0.75rem; /* ระยะห่างภายใน */
+    font-size: 1rem; /* ขนาดตัวหนังสือ */
+    line-height: 1.3;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* transition */
+    width: 100%; /* กว้างเต็มพื้นที่คอลัมน์ */
+    box-sizing: border-box; /* รวม padding, border ในความกว้าง */
+}
+.item-entry-area input:focus { /* ตอน focus */
+    outline: none; /* เอา outline สีฟ้าๆ ออก */
+    border-color: #3b82f6; /* เปลี่ยนสีขอบเป็นฟ้า */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); /* เพิ่มเงาเรืองแสงสีฟ้า */
+}
+.item-entry-area .entry-quantity { text-align: center; } /* ช่องจำนวน จัดกลาง */
+
+/* สไตล์สำหรับปุ่ม "+" ใน Entry Area */
+.item-entry-area .entry-add-btn {
+    padding: 0.6rem; /* ลด padding ลงให้เหมาะกับไอคอน */
+    background-color: #10b981; /* สีเขียวมรกต */
+    color: white;
+    border-radius: 0.375rem; /* มุมโค้ง */
+    transition: background-color 0.2s ease-in-out;
+    display: inline-flex; /* ทำให้ icon อยู่กลาง */
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    line-height: 1; /* สำคัญ! ทำให้ icon ไม่เคลื่อน */
+}
+.item-entry-area .entry-add-btn svg { /* จัดการไอคอน SVG */
+    width: 18px; height: 18px; display: block;
+}
+.item-entry-area .entry-add-btn:hover { /* ตอนชี้ปุ่มบวก */
+    background-color: #059669; /* สีเขียวเข้มขึ้น */
+}
+
+/* V14: สไตล์สำหรับข้อความสถานะ (เพิ่มแล้ว/ซ้ำ) ใต้ Entry Area */
+.entry-status {
+    /* กำหนดให้ span เต็มความกว้างของ grid */
+    grid-column: 1 / -1;
+    text-align: center; /* จัดกลาง */
+    font-size: 0.8rem; /* ขนาดเล็ก */
+    font-weight: 500; /* หนาปานกลาง */
+    padding: 0.3rem 0.5rem; /* ระยะห่างภายใน */
+    margin-top: 0.3rem; /* ระยะห่างจากแถว input */
+    border-radius: 0.25rem; /* มุมโค้งเล็กน้อย */
+    display: none; /* ซ่อนไว้ก่อน ปกติ */
+}
+.entry-status.success { /* สไตล์ตอนสำเร็จ (เพิ่มแล้ว) */
+    color: #065f46; /* สีเขียวเข้ม */
+    background-color: #d1fae5; /* พื้นหลังเขียวอ่อน */
+    border: 1px solid #a7f3d0; /* เส้นขอบเขียวจางๆ */
+}
+.entry-status.error { /* สไตล์ตอนผิดพลาด (ซ้ำ/กรอกไม่ครบ) */
+    color: #991b1b; /* สีแดงเข้ม */
+    background-color: #fee2e2; /* พื้นหลังแดงอ่อน */
+    border: 1px solid #fecaca; /* เส้นขอบแดงจางๆ */
+}
+
+
+/* --- V14: ลบสไตล์ของ .item-row และ .remove-btn เก่าทิ้ง --- */
+/* ไม่จำเป็นต้องมีสไตล์เหล่านี้แล้ว เพราะไม่มี element นี้ในหน้าหลัก */
+
+
+/* --- ปุ่มดำเนินการทั่วไป (ยังใช้กับปุ่ม เพิ่มร้าน, สรุปทั้งหมด, ปุ่มใน Modal) --- */
+.action-button {
+    font-weight: 600;
+    padding: 0.7rem 1.1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    line-height: 1;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+    width: 100%; /* กว้างเต็มจอเล็ก */
+}
+@media (min-width: 640px) {
+    .action-button { width: auto; } /* กว้างตามเนื้อหาจอใหญ่ */
+}
 .action-button svg { width: 18px; height: 18px; }
-.action-button:hover:not(.remove-btn):not(.close-btn):not(.delete-shop-btn) { opacity: 0.9; transform: scale(1.02); }
+/* ไม่ให้มี effect hover แปลกๆ กับปุ่มที่เรากำหนดสไตล์แยกแล้ว */
+.action-button:hover:not(.entry-add-btn):not(.close-btn):not(.delete-shop-btn):not(.summarize-btn):not(.copy-btn) {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
 
-/* สไตล์เฉพาะปุ่ม */
+/* สไตล์เฉพาะปุ่ม (ที่ไม่ใช่ entry add) */
 .add-shop-button-container { text-align: center; margin-top: 1.5rem; }
 .add-shop-main-btn { background-image: linear-gradient(to right, #10b981, #059669); color: white; }
 .add-shop-main-btn:hover { background-image: linear-gradient(to right, #059669, #047857); }
-.add-item-btn { background-color: #3b82f6; color: white; }
-.add-item-btn:hover { background-color: #2563eb; }
+/* ปุ่ม "สรุปรายการร้านนี้" */
 .summarize-btn { background-color: #a855f7; color: white; }
 .summarize-btn:hover { background-color: #9333ea; }
+/* ปุ่ม "ดูสรุปรายการทั้งหมด" (ลอย) */
 .overall-summary-main-btn { background-image: linear-gradient(to right, #14b8a6, #06b6d4); color: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); font-size: 1rem; }
 .overall-summary-main-btn:hover { background-image: linear-gradient(to right, #0d9488, #0891b2); }
+/* ปุ่ม "คัดลอก" ใน Modal */
 .copy-btn { background-color: #3b82f6; color: white; }
 .copy-btn:hover { background-color: #2563eb; }
+/* ปุ่ม "ปิด" ใน Modal */
 .close-action-btn { background-color: #d1d5db; color: #1f2937; }
 .close-action-btn:hover { background-color: #9ca3af; }
 
@@ -61,15 +227,13 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 /* --- ปุ่มสรุปทั้งหมดแบบลอย (Fixed) --- */
 .summary-fixed-container { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); z-index: 900; display: none; width: auto; max-width: 90%; }
 
-/* --- Modal สรุปรายการ --- */
+/* --- Modal สรุปรายการ (ส่วนใหญ่เหมือนเดิม) --- */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.65); padding-top: 5vh; }
 .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: none; width: 92%; max-width: 600px; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
 .close-btn { color: #aaa; position: absolute; top: 10px; right: 15px; font-size: 35px; font-weight: bold; line-height: 0.8; padding: 0; border: none; background: none; cursor: pointer; }
 .close-btn:hover, .close-btn:focus { color: black; text-decoration: none; }
 .modal-title { font-size: 1.5rem; line-height: 2rem; font-weight: 600; margin-bottom: 0.5rem; text-align: center; color: #4f46e5; }
 .summary-timestamp { text-align: center; font-size: 0.8rem; color: #6b7280; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px dashed #e5e7eb; }
-
-/* สไตล์สำหรับเนื้อหาสรุป (ตาราง) */
 .summary-modal-content { max-height: 60vh; overflow-y: auto; padding-right: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; }
 .summary-modal-content h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1.2rem; margin-bottom: 0.25rem; color: #1f2937; padding-bottom: 0.25rem; border-bottom: 1px solid #e5e7eb; }
 .summary-modal-content h3:first-child { margin-top: 0; }
@@ -78,189 +242,63 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .summary-modal-content td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; word-wrap: break-word; }
 .summary-modal-content th { background-color: #f8f9fa; font-weight: 600; font-size: 0.85rem; }
 .summary-modal-content td { font-size: 0.875rem; }
-/* กำหนดความกว้างคอลัมน์ */
-.summary-modal-content th:nth-child(1), .summary-modal-content td:nth-child(1) { width: 15%; text-align: center; } /* จำนวน */
-.summary-modal-content th:nth-child(2), .summary-modal-content td:nth-child(2) { width: 20%; } /* หน่วย */
-.summary-modal-content th:nth-child(3), .summary-modal-content td:nth-child(3) { width: 45%; } /* รายการ */
-.summary-modal-content th:nth-child(4), .summary-modal-content td:nth-child(4) { width: 20%; } /* หมายเหตุ/ราคา */
-
-/* แถวรวมราคา (tfoot) */
-.summary-modal-content tfoot td {
-    font-weight: bold;
-    background-color: #f8f9fa;
-    border-top: 2px solid #bbb;
-}
-.summary-modal-content tfoot td[colspan="3"] {
-    text-align: right;
-    border-right: none;
-    padding-right: 10px;
-}
-.summary-modal-content tfoot td:last-child {
-    border-left: none;
-    min-height: 1.5em;
-}
-
-/* สไตล์สำหรับข้อความ "(ไม่มีรายการ)" */
+.summary-modal-content th:nth-child(1), .summary-modal-content td:nth-child(1) { width: 15%; text-align: center; }
+.summary-modal-content th:nth-child(2), .summary-modal-content td:nth-child(2) { width: 20%; }
+.summary-modal-content th:nth-child(3), .summary-modal-content td:nth-child(3) { width: 45%; }
+.summary-modal-content th:nth-child(4), .summary-modal-content td:nth-child(4) { width: 20%; }
+.summary-modal-content tfoot td { font-weight: bold; background-color: #f8f9fa; border-top: 2px solid #bbb; }
+.summary-modal-content tfoot td[colspan="3"] { text-align: right; border-right: none; padding-right: 10px; }
+.summary-modal-content tfoot td:last-child { border-left: none; min-height: 1.5em; }
 .summary-modal-content p { text-align: center; color: #9ca3af; font-style: italic; font-size: 0.875rem; padding: 0.5rem 0; margin: 0; }
-/* V12: สไตล์ timestamp ต่อร้าน (สำหรับแสดงผลปกติ) */
-.summary-modal-content .shop-timestamp-print {
-    font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem; text-align: left;
-}
-
-
-/* ปุ่มใน Modal */
-.modal-actions {
-    text-align: center;
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-@media (min-width: 640px) {
-    .modal-actions {
-        flex-direction: row;
-        justify-content: center;
-    }
-}
+.summary-modal-content .shop-timestamp-print { font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem; text-align: left; }
+.modal-actions { text-align: center; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 0.75rem; }
+@media (min-width: 640px) { .modal-actions { flex-direction: row; justify-content: center; } }
 .copy-status-message { text-align: center; color: #059669; margin-top: 0.75rem; font-weight: 600; display: none; font-size: 0.9rem; }
 
-/* --- ส่วนของการดำเนินการในแต่ละร้าน --- */
-.shop-actions { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f3f4f6; display: flex; flex-direction: column; gap: 0.75rem; }
-@media (min-width: 640px) { .shop-actions { flex-direction: row; justify-content: space-between; align-items: center; } }
+/* --- ส่วนของการดำเนินการในแต่ละร้าน (V14: เหลือแค่ปุ่มสรุป จัดชิดขวา) --- */
+.shop-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6; /* เส้นคั่นบางๆ เหนือปุ่ม */
+    display: flex;
+    justify-content: flex-end; /* จัดปุ่มสรุปไปทางขวา */
+}
 
-/* --- *** V13: สไตล์สำหรับการพิมพ์ (แสดงเฉพาะ Modal สรุป) *** --- */
+
+/* --- สไตล์สำหรับการพิมพ์ (เหมือน V13 แต่เพิ่มซ่อน Entry Area) --- */
 @media print {
     /* --- ซ่อนทุกอย่างที่ไม่ใช่ Modal สรุป --- */
-    body > .container > h1, /* ซ่อน H1 หลัก */
-    #shops-container, /* ซ่อนส่วนร้านค้าทั้งหมด */
-    .add-shop-button-container, /* ซ่อนปุ่มเพิ่มร้าน */
-    .summary-fixed-container, /* ซ่อนปุ่มสรุปลอย */
-    #loading-error-message, /* ซ่อนข้อความโหลด/ผิดพลาด */
-    .shop-header .delete-shop-btn, /* ซ่อนปุ่มลบร้าน (เผื่อไว้) */
-    .shop-actions, /* ซ่อนปุ่ม action ในร้าน (เผื่อไว้) */
-    .item-row .remove-btn-container, /* ซ่อนปุ่มลบรายการ (เผื่อไว้) */
-    .modal-actions, /* ซ่อนปุ่ม Copy/Close ใน Modal */
-    .modal .close-btn, /* ซ่อนปุ่ม X ปิด Modal */
-    .copy-status-message { /* ซ่อนข้อความสถานะ Copy */
+    body > .container > h1,
+    #shops-container,
+    .add-shop-button-container,
+    .summary-fixed-container,
+    #loading-error-message,
+    .shop-header .delete-shop-btn,
+    .item-entry-area .entry-add-btn, /* V14: ซ่อนปุ่มบวกตอนพิมพ์ */
+    .item-entry-area .entry-status, /* V14: ซ่อนข้อความสถานะตอนพิมพ์ */
+    .shop-actions .summarize-btn, /* ซ่อนปุ่มสรุปในแต่ละร้าน */
+    .modal-actions,
+    .modal .close-btn,
+    .copy-status-message {
         display: none !important;
     }
 
     /* --- แสดงและจัดรูปแบบ Modal สรุปสำหรับการพิมพ์ --- */
-    html, body {
-        padding-bottom: 0 !important;
-        margin: 0 !important;
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important; /* ทำให้เนื้อหาไม่โดนตัด */
-    }
-    /* ทำให้ container หลักไม่มีผลกับการแสดง modal */
-    .container {
-        padding: 0 !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        border: none !important;
-        background-color: transparent !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-    /* บังคับให้ Modal แสดงและจัดตำแหน่งใหม่ */
-    .modal {
-        position: static !important; /* สำคัญ: เอาออกจาก fixed position */
-        display: block !important; /* บังคับแสดง */
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
-        background-color: transparent !important;
-        padding-top: 0 !important;
-        box-shadow: none !important;
-        border: none !important;
-        page-break-before: auto;
-        page-break-inside: avoid;
-    }
-    .modal-content {
-        box-shadow: none !important;
-        border: none !important;
-        width: 100% !important;
-        max-width: 100% !important; /* เต็มความกว้างหน้ากระดาษ */
-        border-radius: 0 !important;
-        padding: 0.5rem !important; /* ใส่ padding เล็กน้อยรอบๆ เนื้อหา modal */
-        margin: 0 !important;
-        page-break-inside: avoid;
-    }
-    .modal-title {
-        font-size: 14pt !important;
-        text-align: left !important;
-        color: #000000 !important;
-        margin-bottom: 0.5rem !important;
-        /* padding: 0 0.5rem; เอา padding ออก ใช้ของ modal-content แทน */
-    }
-     .summary-timestamp {
-        text-align: left !important;
-        font-size: 9pt !important;
-        color: #333333 !important;
-        border-bottom: 1px dashed #cccccc !important;
-        padding-bottom: 0.3rem !important;
-        margin-bottom: 0.5rem !important;
-        /* padding: 0 0.5rem; */
-    }
-     .summary-modal-content {
-        max-height: none !important; /* ไม่จำกัดความสูง */
-        overflow-y: visible !important;
-        padding: 0 !important; /* เอา padding ของ content ออก ใช้ของ modal-content */
-        font-size: 10pt !important;
-        page-break-inside: avoid;
-    }
-     .summary-modal-content h3 {
-        font-size: 11pt !important;
-        color: #000000 !important;
-        border-bottom: 1px solid #cccccc !important;
-        margin-top: 0.8rem !important;
-        margin-bottom: 0.2rem !important;
-        page-break-after: avoid;
-     }
-     .summary-modal-content h3:first-child {
-         margin-top: 0 !important;
-     }
-     /* สไตล์ timestamp ต่อร้านตอนพิมพ์ */
-     .summary-modal-content .shop-timestamp-print {
-        font-size: 8pt !important;
-        color: #555555 !important;
-        margin-bottom: 0.3rem !important;
-        text-align: left !important;
-        page-break-after: avoid;
-     }
-
-    /* ปรับตารางสรุปตอนพิมพ์ */
-    .summary-modal-content table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-        margin-bottom: 1rem !important;
-        font-size: 9pt !important;
-        page-break-inside: avoid;
-    }
+    html, body { padding-bottom: 0 !important; margin: 0 !important; background-color: #ffffff !important; color: #000000 !important; width: 100% !important; height: auto !important; overflow: visible !important; }
+    .container { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: none !important; background-color: transparent !important; width: 100% !important; max-width: 100% !important; }
+    .modal { position: static !important; display: block !important; width: 100% !important; height: auto !important; overflow: visible !important; background-color: transparent !important; padding-top: 0 !important; box-shadow: none !important; border: none !important; page-break-before: auto; page-break-inside: avoid; }
+    .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; padding: 0.5rem !important; margin: 0 !important; page-break-inside: avoid; }
+    .modal-title { font-size: 14pt !important; text-align: left !important; color: #000000 !important; margin-bottom: 0.5rem !important; }
+    .summary-timestamp { text-align: left !important; font-size: 9pt !important; color: #333333 !important; border-bottom: 1px dashed #cccccc !important; padding-bottom: 0.3rem !important; margin-bottom: 0.5rem !important; }
+    .summary-modal-content { max-height: none !important; overflow-y: visible !important; padding: 0 !important; font-size: 10pt !important; page-break-inside: avoid; }
+    .summary-modal-content h3 { font-size: 11pt !important; color: #000000 !important; border-bottom: 1px solid #cccccc !important; margin-top: 0.8rem !important; margin-bottom: 0.2rem !important; page-break-after: avoid; }
+    .summary-modal-content h3:first-child { margin-top: 0 !important; }
+    .summary-modal-content .shop-timestamp-print { font-size: 8pt !important; color: #555555 !important; margin-bottom: 0.3rem !important; text-align: left !important; page-break-after: avoid; }
+    .summary-modal-content table { width: 100% !important; border-collapse: collapse !important; margin-bottom: 1rem !important; font-size: 9pt !important; page-break-inside: avoid; }
     .summary-modal-content th,
-    .summary-modal-content td {
-        border: 1px solid #cccccc !important;
-        padding: 4px 6px !important;
-        vertical-align: top !important;
-    }
-    .summary-modal-content th {
-        background-color: #eeeeee !important;
-        font-weight: bold !important;
-    }
-    .summary-modal-content tfoot td {
-        background-color: #eeeeee !important;
-        font-weight: bold !important;
-        border-top: 2px solid #bbbbbb !important;
-    }
-     .summary-modal-content tfoot td[colspan="3"] {
-        border-right: none !important;
-    }
-    .summary-modal-content tfoot td:last-child {
-        border-left: none !important;
-    }
+    .summary-modal-content td { border: 1px solid #cccccc !important; padding: 4px 6px !important; vertical-align: top !important; }
+    .summary-modal-content th { background-color: #eeeeee !important; font-weight: bold !important; }
+    .summary-modal-content tfoot td { background-color: #eeeeee !important; font-weight: bold !important; border-top: 2px solid #bbbbbb !important; }
+    .summary-modal-content tfoot td[colspan="3"] { border-right: none !important; }
+    .summary-modal-content tfoot td:last-child { border-left: none !important; }
 }
