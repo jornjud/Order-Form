@@ -28,15 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const GLOBAL_ITEMS_DATALIST_ID = 'global-items-list';
     const GLOBAL_UNITS_DATALIST_ID = 'global-units-list';
     const ITEMS_JSON_PATH = 'items.json';
-    const LOCAL_STORAGE_KEY = 'maoOrderFormShopsV1';
+    const LOCAL_STORAGE_KEY = 'maoOrderFormShopsV1'; // V18.3: Key สำหรับ localStorage
 
     // --- State Variables ---
     let masterItemList = [];
-    let shops = [];
-    let activeShopId = null;
-    let summaryModalShopId = null;
+    let shops = []; // State หลัก เก็บข้อมูลร้านค้าและรายการ
+    let activeShopId = null; // ID ของแท็บที่กำลังเปิดอยู่
+    let summaryModalShopId = null; // ID ของร้านที่กำลังดูใน Modal สรุป
 
-    // V18.6: ร้านค้าเริ่มต้น
+    // V18.6: ร้านค้าเริ่มต้น (ใช้เมื่อไม่มีข้อมูลใน localStorage)
     const initialShopsData = [
          { id: `shop-init-${Date.now()+1}`, name: 'น้าไฝ', items: [] },
          { id: `shop-init-${Date.now()+2}`, name: 'น้าไพ', items: [] },
@@ -44,10 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // --- V18.6: Save/Load Functions ---
-    function saveShopsToLocalStorage() { /* (เหมือนเดิม) */
+    /** V18.6: บันทึกข้อมูล shops array ลง localStorage */
+    function saveShopsToLocalStorage() { /* (เหมือนเดิมจาก V18.3) */
         try { const jsonString = JSON.stringify(shops); localStorage.setItem(LOCAL_STORAGE_KEY, jsonString); console.log(`ข้อมูลร้านค้าถูกบันทึกลง localStorage (${new Date().toLocaleTimeString()})`); } catch (error) { console.error("เกิดข้อผิดพลาดตอนบันทึกข้อมูลลง localStorage:", error); }
     }
-    function loadShopsFromLocalStorage() { /* (เหมือนเดิม) */
+    /** V18.6: โหลดข้อมูล shops array จาก localStorage */
+    function loadShopsFromLocalStorage() { /* (เหมือนเดิมจาก V18.3) */
         const savedDataString = localStorage.getItem(LOCAL_STORAGE_KEY); if (savedDataString) { console.log("พบข้อมูลใน localStorage, กำลังโหลด..."); try { const parsedData = JSON.parse(savedDataString); if (Array.isArray(parsedData)) { if (parsedData.every(shop => shop && typeof shop.id === 'string' && typeof shop.name === 'string' && Array.isArray(shop.items))) { shops = parsedData; console.log(`ข้อมูลร้านค้า ${shops.length} ร้าน ถูกโหลดจาก localStorage สำเร็จ`); return true; } else { console.warn("ข้อมูลใน localStorage มีโครงสร้างไม่ถูกต้อง, จะใช้ค่าเริ่มต้นแทน"); localStorage.removeItem(LOCAL_STORAGE_KEY); return false; } } else { console.warn("ข้อมูลใน localStorage ไม่ใช่ Array, จะใช้ค่าเริ่มต้นแทน"); localStorage.removeItem(LOCAL_STORAGE_KEY); return false; } } catch (error) { console.error("เกิด Error ตอนแปลงข้อมูลจาก localStorage:", error); localStorage.removeItem(LOCAL_STORAGE_KEY); return false; } } else { console.log("ไม่พบข้อมูลใน localStorage"); return false; }
     }
 
