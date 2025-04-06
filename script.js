@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryContent = document.getElementById('summaryContent');
     const summaryTimestampElem = document.getElementById('summary-timestamp');
     const copyStatus = document.getElementById('copy-status');
-    const modalActionsDiv = summaryModal?.querySelector('.modal-actions');
+    const modalActionsDiv = summaryModal?.querySelector('.modal-actions'); // V18: ยังใช้อยู่ แต่ไม่มีปุ่ม Save แล้ว
     const modalCloseButton = document.getElementById('modal-close-btn');
     const copySummaryButton = document.getElementById('copy-summary-btn');
     const closeModalActionButton = document.getElementById('close-modal-action-btn');
@@ -28,25 +28,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const GLOBAL_ITEMS_DATALIST_ID = 'global-items-list';
     const GLOBAL_UNITS_DATALIST_ID = 'global-units-list';
     const ITEMS_JSON_PATH = 'items.json';
-    const SAVE_CHANGES_BTN_ID = 'save-summary-changes-btn';
+    // const SAVE_CHANGES_BTN_ID = 'save-summary-changes-btn'; // V18: ไม่ใช้แล้ว
 
     // --- State Variables ---
     let masterItemList = [];
-    let shops = []; // State หลัก เก็บข้อมูลร้านค้าและรายการ
-    let activeShopId = null; // ID ของแท็บที่กำลังเปิดอยู่
-    let summaryModalShopId = null; // ID ของร้านที่กำลังดูใน Modal สรุป
-    let hasUnsavedChanges = false; // Flag เช็คการแก้ไขใน Modal
+    let shops = [];
+    let activeShopId = null;
+    let summaryModalShopId = null; // V18: ยังเก็บไว้เผื่อใช้ตอนเปิด modal
+    // let hasUnsavedChanges = false; // V18: ไม่จำเป็นต้องใช้ flag นี้แล้ว เพราะแก้ในหน้าหลัก
 
-    // V17: กำหนดร้านค้าเริ่มต้น
+    // V18: ร้านค้าเริ่มต้น (เหมือน V17)
     const initialShopsData = [
          { id: `shop-init-${Date.now()+1}`, name: 'น้าไฝ', items: [] },
          { id: `shop-init-${Date.now()+2}`, name: 'น้าไพ', items: [] },
          { id: `shop-init-${Date.now()+3}`, name: 'น้ารุ่ง', items: [] },
     ];
 
-    // --- V17.2: Rendering Functions ---
+    // --- V18: Rendering Functions ---
 
-    /** V17.2: วาดแถบแท็บร้านค้าใหม่ทั้งหมด (เพิ่มปุ่มลบ X บนแท็บ) */
+    /** V18: วาดแถบแท็บร้านค้าใหม่ทั้งหมด (เหมือน V17) */
     function renderTabs() {
         // (โค้ดเหมือนเดิมจาก V17.1)
         console.log("renderTabs called. ActiveShopId:", activeShopId); if (!shopTabsContainer || !addTabButton) { console.error("renderTabs: Missing elements"); return; } const previouslyFocusedElement = document.activeElement; Array.from(shopTabsContainer.children).forEach(child => { if (child !== addTabButton && child !== newShopInputContainer) { shopTabsContainer.removeChild(child); } });
@@ -54,19 +54,111 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.body.contains(previouslyFocusedElement)) { try { previouslyFocusedElement.focus({ preventScroll: true }); } catch (e) {} } else if (activeShopId) { const activeTabButton = shopTabsContainer.querySelector(`.tab-button[data-shop-id="${activeShopId}"]`); activeTabButton?.focus({ preventScroll: true }); } updateOverallSummaryButtonVisibility();
     }
 
-    /** V17.2: วาดเนื้อหาของแท็บที่ถูกเลือก (เพิ่ม List Area ที่มองเห็น) */
+    /** V18: วาดเนื้อหาของแท็บที่ถูกเลือก (เหมือน V17) */
     function renderTabContent() {
-        // (โค้ดเหมือนเดิมจาก V17.1)
+        // (โค้ดเหมือนเดิมจาก V17.1 - สร้าง header, entry area, list area, actions)
         console.log("renderTabContent called. ActiveShopId:", activeShopId); if (!tabContentArea) { console.error("renderTabContent: Missing tabContentArea"); return; } tabContentArea.innerHTML = ''; const activeShop = shops.find(shop => shop.id === activeShopId);
-        if (activeShop) { console.log("Rendering content for shop:", activeShop.name); const headerDiv = document.createElement('div'); headerDiv.className = 'shop-header'; const shopNameDisplay = document.createElement('span'); shopNameDisplay.className = 'shop-name-display'; shopNameDisplay.textContent = activeShop.name; headerDiv.appendChild(shopNameDisplay); tabContentArea.appendChild(headerDiv); const entryArea = createItemEntryArea(activeShop.id); tabContentArea.appendChild(entryArea); const itemListArea = document.createElement('div'); itemListArea.className = 'item-list-area'; itemListArea.id = `item-list-${activeShop.id}`; const ul = document.createElement('ul'); if (activeShop.items.length > 0) { activeShop.items.forEach((item, index) => { ul.appendChild(createShopItemRow(activeShop.id, item, index)); }); } else { ul.innerHTML = '<li class="item-list-placeholder">ยังไม่มีรายการในร้านนี้...</li>'; } itemListArea.appendChild(ul); tabContentArea.appendChild(itemListArea); const buttonsDiv = document.createElement('div'); buttonsDiv.className = 'shop-actions'; const summarizeBtn = document.createElement('button'); summarizeBtn.textContent = '📋 สรุป/แก้ไขร้านนี้'; summarizeBtn.className = 'action-button summarize-btn'; summarizeBtn.type = "button"; summarizeBtn.addEventListener('click', () => showSummary(activeShopId)); buttonsDiv.appendChild(summarizeBtn); tabContentArea.appendChild(buttonsDiv); if(noShopPlaceholder) noShopPlaceholder.style.display = 'none'; }
+        if (activeShop) { console.log("Rendering content for shop:", activeShop.name); const headerDiv = document.createElement('div'); headerDiv.className = 'shop-header'; const shopNameDisplay = document.createElement('span'); shopNameDisplay.className = 'shop-name-display'; shopNameDisplay.textContent = activeShop.name; headerDiv.appendChild(shopNameDisplay); tabContentArea.appendChild(headerDiv); const entryArea = createItemEntryArea(activeShop.id); tabContentArea.appendChild(entryArea); const itemListArea = document.createElement('div'); itemListArea.className = 'item-list-area'; itemListArea.id = `item-list-${activeShop.id}`; const ul = document.createElement('ul'); if (activeShop.items.length > 0) { activeShop.items.forEach((item, index) => { ul.appendChild(createShopItemRow(activeShop.id, item, index)); }); } else { ul.innerHTML = '<li class="item-list-placeholder">ยังไม่มีรายการในร้านนี้...</li>'; } itemListArea.appendChild(ul); tabContentArea.appendChild(itemListArea); const buttonsDiv = document.createElement('div'); buttonsDiv.className = 'shop-actions'; const summarizeBtn = document.createElement('button'); summarizeBtn.textContent = '📋 สรุปรายการร้านนี้'; summarizeBtn.className = 'action-button summarize-btn'; summarizeBtn.type = "button"; summarizeBtn.addEventListener('click', () => showSummary(activeShopId)); buttonsDiv.appendChild(summarizeBtn); tabContentArea.appendChild(buttonsDiv); if(noShopPlaceholder) noShopPlaceholder.style.display = 'none'; }
         else { console.log("No active shop, showing placeholder."); if(noShopPlaceholder) noShopPlaceholder.style.display = 'block'; }
     }
 
-    /** V17.2: สร้างแถวสำหรับแสดงรายการสินค้าใน List Area */
+    /** V18: สร้างแถวสำหรับแสดงรายการสินค้าใน List Area (เพิ่มปุ่ม Edit) */
     function createShopItemRow(shopId, itemData, index) {
-        // (โค้ดเหมือนเดิมจาก V17.1 - SVG included)
-        const li = document.createElement('li'); li.className = 'shop-item-row'; li.dataset.shopId = shopId; li.dataset.itemIndex = index; const quantitySpan = document.createElement('span'); quantitySpan.className = 'item-quantity'; quantitySpan.textContent = itemData.quantity; const unitSpan = document.createElement('span'); unitSpan.className = 'item-unit'; unitSpan.textContent = itemData.unit || '?'; const nameSpan = document.createElement('span'); nameSpan.className = 'item-name'; nameSpan.textContent = itemData.item; const deleteBtn = document.createElement('button'); deleteBtn.className = 'delete-item-inline-btn'; deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`; deleteBtn.title = `ลบ ${itemData.item}`; li.appendChild(quantitySpan); li.appendChild(unitSpan); li.appendChild(nameSpan); li.appendChild(deleteBtn); return li;
+        const li = document.createElement('li');
+        li.className = 'shop-item-row';
+        li.dataset.shopId = shopId;
+        li.dataset.itemIndex = index;
+
+        // ส่วนแสดงผล (Display Mode) - สร้าง span ต่างๆ
+        const displayDiv = document.createElement('div');
+        displayDiv.className = 'item-display-mode'; // Div ครอบส่วนแสดงผล
+
+        const quantitySpan = document.createElement('span');
+        quantitySpan.className = 'item-quantity';
+        quantitySpan.textContent = itemData.quantity;
+
+        const unitSpan = document.createElement('span');
+        unitSpan.className = 'item-unit';
+        unitSpan.textContent = itemData.unit || '?';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'item-name';
+        nameSpan.textContent = itemData.item;
+
+        const actionButtonsDiv = document.createElement('div'); // Div ครอบปุ่ม Edit/Delete
+        actionButtonsDiv.className = 'item-actions-display';
+
+        // ปุ่มแก้ไข (ดินสอ)
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-item-inline-btn'; // Class ใหม่
+        editBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><line x1="18" y1="2" x2="22" y2="6"/><path d="M7.5 20.5 19 9l-4-4L3.5 16.5 2 22z"/></svg>`;
+        editBtn.title = `แก้ไข ${itemData.item}`;
+
+        // ปุ่มลบ (ถังขยะ)
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-item-inline-btn'; // Class เดิม
+        deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`;
+        deleteBtn.title = `ลบ ${itemData.item}`;
+
+        actionButtonsDiv.appendChild(editBtn);
+        actionButtonsDiv.appendChild(deleteBtn);
+
+        displayDiv.appendChild(quantitySpan);
+        displayDiv.appendChild(unitSpan);
+        displayDiv.appendChild(nameSpan);
+        displayDiv.appendChild(actionButtonsDiv); // เพิ่ม div ปุ่ม action
+
+        // ส่วนแก้ไข (Edit Mode) - สร้าง input ต่างๆ (ซ่อนไว้ก่อน)
+        const editDiv = document.createElement('div');
+        editDiv.className = 'item-edit-mode hidden'; // ซ่อนไว้ด้วย class 'hidden'
+
+        const editQuantityInput = document.createElement('input');
+        editQuantityInput.type = 'number';
+        editQuantityInput.className = 'edit-quantity-inline';
+        editQuantityInput.value = itemData.quantity;
+        editQuantityInput.min = "0"; editQuantityInput.step = "any";
+
+        const editUnitInput = document.createElement('input');
+        editUnitInput.type = 'text';
+        editUnitInput.className = 'edit-unit-inline';
+        editUnitInput.value = itemData.unit || '';
+        editUnitInput.setAttribute('list', GLOBAL_UNITS_DATALIST_ID);
+
+        // ชื่อรายการ (แสดงเป็น text แก้ไม่ได้ในโหมดนี้ก่อน)
+        const editNameSpan = document.createElement('span');
+        editNameSpan.className = 'item-name-edit-display'; // Class ใหม่
+        editNameSpan.textContent = itemData.item;
+
+        const editActionButtonsDiv = document.createElement('div'); // Div ครอบปุ่ม Save/Cancel
+        editActionButtonsDiv.className = 'item-actions-edit';
+
+        // ปุ่มบันทึก (เครื่องหมายถูก)
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'save-edit-inline-btn';
+        saveBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"/></svg>`;
+        saveBtn.title = 'บันทึกการแก้ไข';
+
+        // ปุ่มยกเลิก (กากบาท)
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'cancel-edit-inline-btn';
+        cancelBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+        cancelBtn.title = 'ยกเลิกการแก้ไข';
+
+        editActionButtonsDiv.appendChild(saveBtn);
+        editActionButtonsDiv.appendChild(cancelBtn);
+
+        editDiv.appendChild(editQuantityInput);
+        editDiv.appendChild(editUnitInput);
+        editDiv.appendChild(editNameSpan); // แสดงชื่อรายการเฉยๆ
+        editDiv.appendChild(editActionButtonsDiv);
+
+        // เพิ่มทั้งสองโหมดเข้าไปใน li
+        li.appendChild(displayDiv);
+        li.appendChild(editDiv);
+
+        return li;
     }
+
 
     // --- UI Creation Functions (ส่วนใหญ่เหมือนเดิม) ---
     function createOrUpdateDatalist(listId, optionsArray) { /* (เหมือนเดิม) */
@@ -87,47 +179,146 @@ document.addEventListener('DOMContentLoaded', () => {
         entryDiv.appendChild(quantityInput); entryDiv.appendChild(unitInput); entryDiv.appendChild(itemInput); entryDiv.appendChild(addBtn); entryDiv.appendChild(statusDiv); return entryDiv;
     }
 
-    // --- V17.2: Event Handlers ---
+    // --- V18: Event Handlers ---
 
-    /** V17.2: จัดการการคลิกแท็บร้านค้า (Delegated - เฉพาะตัวแท็บ ไม่ใช่ปุ่มลบ) */
+    /** V18: จัดการการคลิกแท็บร้านค้า (เหมือน V17) */
     function handleTabClick(event) { /* (เหมือนเดิมจาก V17.1) */
         if (event.target.closest('.delete-tab-btn')) { event.stopPropagation(); return; } const clickedTab = event.target.closest('.tab-button'); if (!clickedTab || clickedTab.classList.contains('active')) { return; } const newActiveShopId = clickedTab.dataset.shopId; console.log("Tab selected:", newActiveShopId); if (newActiveShopId) { activeShopId = newActiveShopId; renderTabs(); renderTabContent(); }
     }
-    /** V17.2: จัดการการคลิกปุ่ม + เพื่อเพิ่มร้านใหม่ */
+    /** V18: จัดการการคลิกปุ่ม + เพื่อเพิ่มร้านใหม่ */
     function handleAddTabClick() { /* (เหมือนเดิม) */
         console.log("Add tab button clicked"); if (newShopInputContainer && addTabButton && newShopNameInput) { newShopInputContainer.classList.remove('hidden'); addTabButton.classList.add('hidden'); newShopNameInput.value = ''; newShopNameInput.focus(); console.log("Showing new shop input"); } else { console.error("handleAddTabClick: Missing required elements"); }
     }
-    /** V17.2: จัดการการยกเลิกเพิ่มร้านใหม่ */
+    /** V18: จัดการการยกเลิกเพิ่มร้านใหม่ */
     function handleCancelNewShop() { /* (เหมือนเดิม) */
         console.log("Cancel new shop"); if (newShopInputContainer && addTabButton) { newShopInputContainer.classList.add('hidden'); addTabButton.classList.remove('hidden'); newShopNameInput.value = ''; } else { console.error("handleCancelNewShop: Missing required elements"); }
     }
-    /** V17.2: จัดการการบันทึกร้านค้าใหม่ */
+    /** V18: จัดการการบันทึกร้านค้าใหม่ */
     function handleSaveNewShop() { /* (เหมือนเดิม) */
         console.log("Save new shop clicked"); if (!newShopNameInput) { console.error("handleSaveNewShop: Missing newShopNameInput"); return; } const newName = newShopNameInput.value.trim(); if (!newName) { alert("เพื่อน! ยังไม่ได้ใส่ชื่อร้านเลยนะ"); newShopNameInput.focus(); return; } if (shops.some(shop => shop.name.toLowerCase() === newName.toLowerCase())) { alert(`เพื่อน! มีร้านชื่อ "${newName}" อยู่แล้วนะ`); newShopNameInput.focus(); newShopNameInput.select(); return; } const newShopId = `shop-${Date.now()}`; const newShopData = { id: newShopId, name: newName, items: [] }; shops.push(newShopData); activeShopId = newShopId; console.log("New shop added:", newShopData); renderTabs(); renderTabContent(); handleCancelNewShop(); /* TODO: Save state */
     }
-     /** V17.2: จัดการการกดปุ่มลบร้าน (X บนแท็บ) (Delegated) */
+     /** V18: จัดการการกดปุ่มลบร้าน (X บนแท็บ) (เหมือน V17) */
     function handleDeleteShopClick(event) { /* (เหมือนเดิมจาก V17.1) */
         const deleteButton = event.target.closest('.delete-tab-btn'); if (!deleteButton) return; const shopIdToDelete = deleteButton.dataset.shopId; const shopToDelete = shops.find(s => s.id === shopIdToDelete); console.log("Delete tab button clicked for:", shopIdToDelete, shopToDelete?.name); if (!shopToDelete) return; if (confirm(`⚠️ ยืนยันจะลบร้าน "${shopToDelete.name}" จริงดิ? ข้อมูลของในร้านนี้จะหายหมดนะ!`)) { const indexToDelete = shops.findIndex(s => s.id === shopIdToDelete); if (indexToDelete > -1) { shops.splice(indexToDelete, 1); console.log("Shop removed from state."); if (activeShopId === shopIdToDelete) { if (shops.length === 0) { activeShopId = null; } else if (indexToDelete >= shops.length) { activeShopId = shops[shops.length - 1].id; } else { activeShopId = shops[indexToDelete].id; } console.log("New activeShopId:", activeShopId); } renderTabs(); renderTabContent(); /* TODO: Save state */ } }
     }
-    /** V17.2: จัดการการกดปุ่ม "เพิ่มรายการ" (+) และแสดงผลในลิสต์ทันที */
+    /** V18: จัดการการกดปุ่ม "เพิ่มรายการ" (+) และแสดงผลในลิสต์ทันที (เหมือน V17) */
     function handleAddItemClick(event) { /* (เหมือนเดิมจาก V17.1) */
         const addButton = event.target.closest('.entry-add-btn'); if (!addButton) return; const entryArea = addButton.closest('.item-entry-area'); if (!entryArea) return; const shopId = entryArea.dataset.shopId; const quantityInput = entryArea.querySelector('.entry-quantity'); const unitInput = entryArea.querySelector('.entry-unit'); const itemInput = entryArea.querySelector('.entry-item'); if (!shopId || !quantityInput || !unitInput || !itemInput) { console.error("หา elements ใน entry area ไม่เจอ ร้าน:", shopId); return; } const quantity = quantityInput.value.trim(); const unit = unitInput.value.trim(); const itemName = itemInput.value.trim(); const itemNameLower = itemName.toLowerCase(); console.log(`Add item attempt: Qty=${quantity}, Unit=${unit}, Item=${itemName}, Shop=${shopId}`); if (!itemName) { showEntryStatus(entryArea, '⚠️ ยังไม่ได้ใส่ชื่อรายการเลยเพื่อน!', true); itemInput.focus(); return; } if (!quantity) { showEntryStatus(entryArea, '⚠️ ลืมใส่จำนวนรึเปล่า?', true); quantityInput.focus(); return; } const shop = shops.find(s => s.id === shopId); if (!shop) { console.error("ไม่เจอร้านใน state ID:", shopId); showEntryStatus(entryArea, '❌ เกิดข้อผิดพลาด: ไม่เจอร้านค้านี้', true); return; } const isDuplicate = shop.items.some(item => item.item.toLowerCase() === itemNameLower); if (isDuplicate) { console.log("Duplicate item found:", itemName); showEntryStatus(entryArea, `⚠️ "${itemName}" มีในร้านนี้แล้ว!`, true); itemInput.focus(); itemInput.select(); return; } const newItem = { quantity: quantity, unit: unit || '?', item: itemName }; shop.items.push(newItem); const newItemIndex = shop.items.length - 1; console.log("Item added to state:", shop.items); const listAreaUl = tabContentArea.querySelector(`#item-list-${shopId} ul`); if (listAreaUl) { const placeholder = listAreaUl.querySelector('.item-list-placeholder'); placeholder?.remove(); const newItemRow = createShopItemRow(shopId, newItem, newItemIndex); listAreaUl.appendChild(newItemRow); listAreaUl.parentElement.scrollTop = listAreaUl.parentElement.scrollHeight; } else { console.error("Could not find list area UL for shop:", shopId); renderTabContent(); } showEntryStatus(entryArea, `✅ เพิ่ม "${itemName}" แล้ว!`, false); quantityInput.value = ''; unitInput.value = ''; itemInput.value = ''; itemInput.focus(); /* TODO: Save state */
     }
-     /** V17.2: จัดการการกดปุ่มลบรายการ (ถังขยะ) ใน List Area (Delegated) */
+     /** V18: จัดการการกดปุ่มลบรายการ (ถังขยะ) ใน List Area (เหมือน V17) */
     function handleDeleteItemInline(event) { /* (เหมือนเดิมจาก V17.1) */
         const deleteButton = event.target.closest('.delete-item-inline-btn'); if (!deleteButton) return; const tableRow = deleteButton.closest('.shop-item-row'); if (!tableRow) return; const shopId = tableRow.dataset.shopId; const itemIndex = parseInt(tableRow.dataset.itemIndex, 10); if (shopId === undefined || isNaN(itemIndex)) { console.error("ไม่สามารถหา shopId หรือ itemIndex สำหรับลบ inline ได้"); return; } const shop = shops.find(s => s.id === shopId); if (!shop || !shop.items || itemIndex < 0 || itemIndex >= shop.items.length) { console.error("หาข้อมูลร้านหรือรายการที่จะลบ inline ไม่เจอ:", shopId, itemIndex); return; } const itemToDelete = shop.items[itemIndex]; if (confirm(`⚠️ ยืนยันลบรายการ "${itemToDelete.item}" (${itemToDelete.quantity} ${itemToDelete.unit}) จริงดิ?`)) { shop.items.splice(itemIndex, 1); console.log("Item deleted inline from state."); /* TODO: Save state */ renderTabContent(); const entryArea = tabContentArea.querySelector(`.item-entry-area[data-shop-id="${shopId}"]`); if (entryArea) { showEntryStatus(entryArea, `🗑️ ลบรายการ "${itemToDelete.item}" แล้ว`, false); } }
     }
-    /** V17.2: แสดงสถานะการเพิ่ม/ซ้ำ ใน Entry Area */
+    /** V18: แสดงสถานะการเพิ่ม/ซ้ำ ใน Entry Area */
     function showEntryStatus(entryAreaElement, message, isError = false) { /* (เหมือนเดิม) */
         const statusDiv = entryAreaElement?.querySelector('.entry-status'); if (!statusDiv) return; statusDiv.textContent = message; statusDiv.className = `entry-status ${isError ? 'error' : 'success'}`; statusDiv.style.display = 'block'; setTimeout(() => { statusDiv.style.display = 'none'; statusDiv.textContent = ''; statusDiv.className = 'entry-status'; }, 2500);
     }
+
+    /** V18: จัดการการกดปุ่มแก้ไข (ดินสอ) ใน List Area */
+    function handleEditItemInline(event) {
+        const editButton = event.target.closest('.edit-item-inline-btn');
+        if (!editButton) return;
+
+        const itemRow = editButton.closest('.shop-item-row');
+        if (!itemRow) return;
+
+        // สลับโหมด: ซ่อน display mode, แสดง edit mode
+        const displayMode = itemRow.querySelector('.item-display-mode');
+        const editMode = itemRow.querySelector('.item-edit-mode');
+        if (displayMode && editMode) {
+            displayMode.classList.add('hidden');
+            editMode.classList.remove('hidden');
+            // Focus ที่ช่องจำนวนเมื่อเข้าโหมดแก้ไข
+            const quantityInput = editMode.querySelector('.edit-quantity-inline');
+            quantityInput?.focus();
+            quantityInput?.select();
+        } else {
+            console.error("Could not find display/edit mode divs in item row");
+        }
+    }
+
+    /** V18: จัดการการกดปุ่มบันทึก (เครื่องหมายถูก) ในโหมดแก้ไข Inline */
+    function handleSaveEditInline(event) {
+        const saveButton = event.target.closest('.save-edit-inline-btn');
+        if (!saveButton) return;
+
+        const itemRow = saveButton.closest('.shop-item-row');
+        const editMode = saveButton.closest('.item-edit-mode');
+        const displayMode = itemRow?.querySelector('.item-display-mode');
+        if (!itemRow || !editMode || !displayMode) return;
+
+        const shopId = itemRow.dataset.shopId;
+        const itemIndex = parseInt(itemRow.dataset.itemIndex, 10);
+
+        const editQuantityInput = editMode.querySelector('.edit-quantity-inline');
+        const editUnitInput = editMode.querySelector('.edit-unit-inline');
+
+        if (shopId === undefined || isNaN(itemIndex) || !editQuantityInput || !editUnitInput) {
+            console.error("Cannot find elements or data for saving inline edit");
+            return;
+        }
+
+        const newQuantity = editQuantityInput.value.trim();
+        const newUnit = editUnitInput.value.trim() || '?';
+
+        // Validation (เบื้องต้น)
+        if (!newQuantity) {
+            alert("เพื่อน! จำนวนห้ามว่างนะ");
+            editQuantityInput.focus();
+            return;
+        }
+
+        // หา item ใน state
+        const shop = shops.find(s => s.id === shopId);
+        if (!shop || !shop.items || itemIndex < 0 || itemIndex >= shop.items.length) {
+            console.error("Cannot find item in state to save edit:", shopId, itemIndex);
+            alert("เกิดข้อผิดพลาด: ไม่พบรายการที่จะแก้ไข");
+            // อาจจะยกเลิกโหมดแก้ไขไปเลย
+            handleCancelEditInline(event); // เรียก cancel แทน
+            return;
+        }
+
+        // อัปเดต state
+        shop.items[itemIndex].quantity = newQuantity;
+        shop.items[itemIndex].unit = newUnit;
+        console.log(`Item ${itemIndex} updated in shop ${shopId}:`, shop.items[itemIndex]);
+        // TODO: Save state
+
+        // อัปเดตการแสดงผลใน display mode
+        const quantitySpan = displayMode.querySelector('.item-quantity');
+        const unitSpan = displayMode.querySelector('.item-unit');
+        if (quantitySpan) quantitySpan.textContent = newQuantity;
+        if (unitSpan) unitSpan.textContent = newUnit;
+
+        // สลับโหมดกลับ
+        editMode.classList.add('hidden');
+        displayMode.classList.remove('hidden');
+    }
+
+    /** V18: จัดการการกดปุ่มยกเลิก (X) ในโหมดแก้ไข Inline */
+    function handleCancelEditInline(event) {
+        const cancelButton = event.target.closest('.cancel-edit-inline-btn');
+        if (!cancelButton) return;
+
+        const itemRow = cancelButton.closest('.shop-item-row');
+        const editMode = cancelButton.closest('.item-edit-mode');
+        const displayMode = itemRow?.querySelector('.item-display-mode');
+
+        if (itemRow && editMode && displayMode) {
+            // ไม่ต้องทำอะไรกับ state แค่สลับโหมดกลับ
+            editMode.classList.add('hidden');
+            displayMode.classList.remove('hidden');
+            // ไม่ต้อง reset ค่า input เพราะเมื่อกด Edit ใหม่ มันจะดึงค่าจาก state มาใส่อยู่แล้ว
+        }
+    }
+
 
     // --- Core Logic Functions ---
     function updateOverallSummaryButtonVisibility() { /* (เหมือนเดิม) */
         const shopSectionsExist = shops.length > 0; if (overallSummaryContainer) { overallSummaryContainer.style.display = shopSectionsExist ? 'block' : 'none'; }
     }
-    /** V17.2: ดึงข้อมูลจาก State Array ('shops') สำหรับสร้างสรุป (เพิ่ม shopId) */
-    function getOrderData(shopId = null) { /* (เหมือนเดิมจาก V16) */
+    /** V18: ดึงข้อมูลจาก State Array ('shops') สำหรับสร้างสรุป (เหมือน V17) */
+    function getOrderData(shopId = null) { /* (เหมือนเดิมจาก V17) */
         if (shopId) { const shop = shops.find(s => s.id === shopId); if (shop) { return [{ shopId: shop.id, shopName: shop.name, items: [...shop.items] }]; } else { return []; } } else { return shops.filter(shop => shop.items.length > 0 || shop.name !== 'ร้านค้าใหม่ (คลิกแก้ชื่อ)').map(shop => ({ shopId: shop.id, shopName: shop.name, items: [...shop.items] })); }
     }
     function formatThaiTimestamp() { /* (เหมือนเดิม) */
@@ -137,149 +328,160 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof unsafe !== 'string') return ''; return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    /** V17.2: แสดง Modal สรุป (เหมือน V16 - สร้างตารางที่แก้ไขได้ + ปุ่มลบ/บันทึก) */
-    function showSummary(shopId = null) { /* (เหมือนเดิมจาก V16.1) */
-        console.log("showSummary called for shopId:", shopId); if (!summaryModal || !summaryContent || !summaryTimestampElem || !modalActionsDiv) { console.error("showSummary: Missing required modal elements"); return; } summaryModalShopId = shopId; hasUnsavedChanges = false; const overallTimestamp = formatThaiTimestamp(); summaryTimestampElem.textContent = overallTimestamp; const data = getOrderData(summaryModalShopId); summaryContent.innerHTML = ''; if (copyStatus) copyStatus.style.display = 'none'; document.getElementById(SAVE_CHANGES_BTN_ID)?.remove(); const dataToShow = data;
-        if (dataToShow.length === 0) { summaryContent.innerHTML = '<p style="text-align: center; color: grey; margin-top: 1rem;">ไม่มีรายการสั่งซื้อว่ะเพื่อน</p>'; }
-        else { let modalHtml = ''; dataToShow.forEach(shopData => { const currentShopId = shopData.shopId; if (!currentShopId) { console.error("Shop data missing ID in showSummary:", shopData); return; } const shopNameEscaped = escapeHtml(shopData.shopName); modalHtml += `<h3 style="/*...*/">🛒 ${shopNameEscaped}</h3>`; if (summaryModalShopId === null) { const timePart = overallTimestamp.split(' เวลา ')[1] || ''; const datePart = overallTimestamp.split(' เวลา ')[0].replace('สรุป ณ ',''); modalHtml += `<p class="shop-timestamp-print" style="/*...*/">(ข้อมูล ณ ${datePart} ${timePart})</p>`; } modalHtml += `<table class="summary-table" data-shop-id="${currentShopId}" style="/*...*/"><thead><tr><th style="/*...*/ width: 15%;">จำนวน</th><th style="/*...*/ width: 20%;">หน่วย</th><th style="/*...*/ width: 50%;">รายการ</th><th style="/*...*/ width: 15%;">จัดการ</th></tr></thead><tbody>`; if (shopData.items && shopData.items.length > 0) { shopData.items.forEach((item, index) => { modalHtml += `<tr data-shop-id="${currentShopId}" data-item-index="${index}"><td style="/*...*/ text-align: center;"><input type="number" value="${escapeHtml(item.quantity)}" class="summary-input summary-quantity" min="0" step="any" aria-label="จำนวนของ ${escapeHtml(item.item)}"></td><td style="/*...*/"><input type="text" value="${escapeHtml(item.unit)}" class="summary-input summary-unit" list="${GLOBAL_UNITS_DATALIST_ID}" aria-label="หน่วยของ ${escapeHtml(item.item)}"></td><td style="/*...*/ word-wrap: break-word;">${escapeHtml(item.item)}</td><td style="/*...*/ text-align: center;"><button class="delete-item-summary-btn" title="ลบรายการ ${escapeHtml(item.item)}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></button></td></tr>`; }); } else { modalHtml += `<tr><td colspan="4" style="/*...*/">(ไม่มีรายการ)</td></tr>`; } modalHtml += `</tbody></table>`; }); summaryContent.innerHTML = modalHtml; if (summaryContent.querySelector('table.summary-table tbody tr[data-item-index]')) { const saveChangesBtn = document.createElement('button'); saveChangesBtn.id = SAVE_CHANGES_BTN_ID; saveChangesBtn.className = 'action-button save-changes-btn'; saveChangesBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกการแก้ไข`; saveChangesBtn.disabled = true; modalActionsDiv.insertBefore(saveChangesBtn, copySummaryButton); } }
+    /** V18: แสดง Modal สรุป (กลับไปเป็นแบบ Read-Only) */
+    function showSummary(shopId = null) {
+        console.log("showSummary called for shopId:", shopId);
+        if (!summaryModal || !summaryContent || !summaryTimestampElem || !modalActionsDiv) {
+            console.error("showSummary: Missing required modal elements"); return;
+        }
+
+        summaryModalShopId = shopId; // เก็บ ID ไว้เผื่อใช้ตอน Copy
+
+        const overallTimestamp = formatThaiTimestamp();
+        summaryTimestampElem.textContent = overallTimestamp;
+
+        const data = getOrderData(summaryModalShopId);
+        summaryContent.innerHTML = '';
+        if (copyStatus) copyStatus.style.display = 'none';
+
+        // V18: ลบปุ่ม Save Changes ถ้ามีค้างอยู่ (ไม่ควรมีแล้ว แต่กันเหนียว)
+        document.getElementById(SAVE_CHANGES_BTN_ID)?.remove();
+
+        const dataToShow = data;
+        if (dataToShow.length === 0) {
+             summaryContent.innerHTML = '<p style="text-align: center; color: grey; margin-top: 1rem;">ไม่มีรายการสั่งซื้อว่ะเพื่อน</p>';
+        } else {
+            let modalHtml = '';
+            dataToShow.forEach(shopData => {
+                const currentShopId = shopData.shopId;
+                if (!currentShopId) { console.error("Shop data missing ID in showSummary:", shopData); return; }
+
+                const shopNameEscaped = escapeHtml(shopData.shopName);
+                modalHtml += `<h3 style="/*...*/">🛒 ${shopNameEscaped}</h3>`;
+
+                if (summaryModalShopId === null) { /* ... timestamp ... */
+                    const timePart = overallTimestamp.split(' เวลา ')[1] || ''; const datePart = overallTimestamp.split(' เวลา ')[0].replace('สรุป ณ ',''); modalHtml += `<p class="shop-timestamp-print" style="/*...*/">(ข้อมูล ณ ${datePart} ${timePart})</p>`;
+                }
+
+                // V18: หัวตารางแบบ Read-Only (ไม่มีคอลัมน์ "จัดการ")
+                modalHtml += `
+                    <table class="summary-table" data-shop-id="${currentShopId}" style="/*...*/">
+                        <thead>
+                            <tr>
+                                <th style="/*...*/ width: 15%;">จำนวน</th>
+                                <th style="/*...*/ width: 20%;">หน่วย</th>
+                                <th style="/*...*/ width: 65%;">รายการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                // V18: สร้างแถวแบบ Read-Only
+                if (shopData.items && shopData.items.length > 0) {
+                    shopData.items.forEach((item, index) => {
+                        modalHtml += `
+                            <tr>
+                                <td style="/*...*/ text-align: center;">${escapeHtml(item.quantity)}</td>
+                                <td style="/*...*/">${escapeHtml(item.unit)}</td>
+                                <td style="/*...*/ word-wrap: break-word;">${escapeHtml(item.item)}</td>
+                            </tr>
+                        `; // ไม่มีปุ่มลบ/แก้ไขในนี้
+                    });
+                } else {
+                     modalHtml += `<tr><td colspan="3" style="/*...*/">(ไม่มีรายการ)</td></tr>`; // เหลือ 3 คอลัมน์
+                }
+                modalHtml += `</tbody></table>`;
+            });
+            summaryContent.innerHTML = modalHtml;
+        }
         summaryModal.style.display = 'block';
     }
 
-    /** V17.2: ปิด Modal (เหมือน V16) */
-    function closeModal() { /* (เหมือนเดิมจาก V16) */
-        if (hasUnsavedChanges) { if (!confirm("เพื่อน! มีการแก้ไขที่ยังไม่ได้กดบันทึกนะ ต้องการปิดโดยไม่บันทึกจริงดิ?")) { return; } } if (summaryModal) summaryModal.style.display = 'none'; summaryModalShopId = null; hasUnsavedChanges = false; document.getElementById(SAVE_CHANGES_BTN_ID)?.remove();
+    /** V18: ปิด Modal */
+    function closeModal() {
+        // (โค้ดเหมือนเดิม ไม่ต้องเช็ค unsaved changes แล้ว)
+        if (summaryModal) summaryModal.style.display = 'none';
+        summaryModalShopId = null;
+        // ไม่ต้องลบปุ่ม Save เพราะไม่มีแล้ว
     }
-    /** V17.2: คัดลอกสรุป (เหมือน V16) */
-    function copySummaryToClipboard() { /* (เหมือนเดิมจาก V16) */
-        if (hasUnsavedChanges) { alert("เพื่อน! กรุณากด 'บันทึกการแก้ไข' ก่อนคัดลอกนะ เพื่อให้ได้ข้อมูลล่าสุด"); return; } if (!summaryContent) return; let textToCopy = ""; const currentTimestamp = formatThaiTimestamp(); textToCopy += currentTimestamp + "\n\n"; const dataToCopy = getOrderData(summaryModalShopId); if(dataToCopy.length === 0) { textToCopy += "(ไม่มีรายการสั่งซื้อ)"; } else { dataToCopy.forEach((shopData, index) => { const shopNameOnly = shopData.shopName.replace(/🛒\s*/, ''); textToCopy += `--- ${shopNameOnly} ---\n`; if (shopData.items.length > 0) { shopData.items.forEach(item => { textToCopy += `${item.quantity} ${item.unit} : ${item.item}\n`; }); } else { textToCopy += "(ไม่มีรายการ)\n"; } if (index < dataToCopy.length - 1) { textToCopy += "\n"; } }); } if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(textToCopy.trim()).then(() => { if (copyStatus) { copyStatus.textContent = '✅ คัดลอกรายการแล้ว!'; copyStatus.style.color = '#059669'; copyStatus.style.display = 'block'; setTimeout(() => { copyStatus.style.display = 'none'; }, 2500); } }).catch(err => { console.error('Clipboard copy failed:', err); alert('อุ๊ปส์! ก๊อปไม่ได้ว่ะเพื่อน ลองใหม่ดิ๊'); }); } else { alert('เบราว์เซอร์นี้อาจจะไม่รองรับการคัดลอกอัตโนมัติ'); }
+
+    /** V18: คัดลอกสรุป */
+    function copySummaryToClipboard() {
+        // (โค้ดเหมือนเดิมจาก V17 - ไม่ต้องเช็ค unsaved changes)
+        if (!summaryContent) return; let textToCopy = ""; const currentTimestamp = formatThaiTimestamp(); textToCopy += currentTimestamp + "\n\n"; const dataToCopy = getOrderData(summaryModalShopId); if(dataToCopy.length === 0) { textToCopy += "(ไม่มีรายการสั่งซื้อ)"; } else { dataToCopy.forEach((shopData, index) => { const shopNameOnly = shopData.shopName.replace(/🛒\s*/, ''); textToCopy += `--- ${shopNameOnly} ---\n`; if (shopData.items.length > 0) { shopData.items.forEach(item => { textToCopy += `${item.quantity} ${item.unit} : ${item.item}\n`; }); } else { textToCopy += "(ไม่มีรายการ)\n"; } if (index < dataToCopy.length - 1) { textToCopy += "\n"; } }); } if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(textToCopy.trim()).then(() => { if (copyStatus) { copyStatus.textContent = '✅ คัดลอกรายการแล้ว!'; copyStatus.style.color = '#059669'; copyStatus.style.display = 'block'; setTimeout(() => { copyStatus.style.display = 'none'; }, 2500); } }).catch(err => { console.error('Clipboard copy failed:', err); alert('อุ๊ปส์! ก๊อปไม่ได้ว่ะเพื่อน ลองใหม่ดิ๊'); }); } else { alert('เบราว์เซอร์นี้อาจจะไม่รองรับการคัดลอกอัตโนมัติ'); }
     }
-    /** V17.2: จัดการการลบรายการในหน้าสรุป (เหมือน V16) */
-    function handleDeleteItemInSummary(event) { /* (เหมือนเดิมจาก V16) */
-        const deleteButton = event.target.closest('.delete-item-summary-btn'); if (!deleteButton) return; const tableRow = deleteButton.closest('tr'); if (!tableRow) return; const shopId = tableRow.dataset.shopId; const itemIndex = parseInt(tableRow.dataset.itemIndex, 10); if (shopId === undefined || isNaN(itemIndex)) { console.error("ไม่สามารถหา shopId หรือ itemIndex สำหรับลบได้"); return; } const shop = shops.find(s => s.id === shopId); if (!shop || !shop.items || itemIndex < 0 || itemIndex >= shop.items.length) { console.error("หาข้อมูลร้านหรือรายการที่จะลบไม่เจอ:", shopId, itemIndex); return; } const itemToDelete = shop.items[itemIndex]; if (confirm(`⚠️ ยืนยันลบรายการ "${itemToDelete.item}" (${itemToDelete.quantity} ${itemToDelete.unit}) จริงดิ?`)) { shop.items.splice(itemIndex, 1); console.log("Item deleted from state."); /* TODO: Save state */ hasUnsavedChanges = true; const saveBtn = document.getElementById(SAVE_CHANGES_BTN_ID); if(saveBtn) saveBtn.disabled = false; showSummary(summaryModalShopId); if (copyStatus) { copyStatus.textContent = `🗑️ ลบรายการ "${itemToDelete.item}" แล้ว`; copyStatus.style.color = '#b91c1c'; copyStatus.style.display = 'block'; setTimeout(() => { copyStatus.style.display = 'none'; copyStatus.textContent = '✅ คัดลอกรายการแล้ว!'; copyStatus.style.color = '#059669'; }, 3000); } }
-    }
-    /** V17.2: จัดการการบันทึกการแก้ไขในหน้าสรุป (เหมือน V16) */
-    function handleSaveChangesInSummary() { /* (เหมือนเดิมจาก V16) */
-        console.log("Save changes clicked"); if (!summaryContent) return; let changesMadeCount = 0; summaryContent.querySelectorAll('table.summary-table tbody tr[data-item-index]').forEach(row => { const shopId = row.dataset.shopId; const itemIndex = parseInt(row.dataset.itemIndex, 10); const quantityInput = row.querySelector('.summary-quantity'); const unitInput = row.querySelector('.summary-unit'); if (shopId === undefined || isNaN(itemIndex) || !quantityInput || !unitInput) { console.warn("ข้ามแถวที่ไม่สมบูรณ์:", row); return; } const shop = shops.find(s => s.id === shopId); if (!shop || !shop.items || itemIndex < 0 || itemIndex >= shop.items.length) { console.warn("หา item ใน state ไม่เจอสำหรับ:", shopId, itemIndex); return; } const currentItem = shop.items[itemIndex]; const newQuantity = quantityInput.value.trim(); const newUnit = unitInput.value.trim() || '?'; if (currentItem.quantity !== newQuantity || currentItem.unit !== newUnit) { console.log(`Change detected for item ${itemIndex} in shop ${shopId}: Qty ${currentItem.quantity}->${newQuantity}, Unit ${currentItem.unit}->${newUnit}`); currentItem.quantity = newQuantity; currentItem.unit = newUnit; changesMadeCount++; } }); if (changesMadeCount > 0) { console.log(`${changesMadeCount} changes saved to state.`); /* TODO: Save state */ hasUnsavedChanges = false; const saveBtn = document.getElementById(SAVE_CHANGES_BTN_ID); if(saveBtn) saveBtn.disabled = true; if (copyStatus) { copyStatus.textContent = `💾 บันทึก ${changesMadeCount} การแก้ไขเรียบร้อย!`; copyStatus.style.color = '#059669'; copyStatus.style.display = 'block'; setTimeout(() => { copyStatus.style.display = 'none'; copyStatus.textContent = '✅ คัดลอกรายการแล้ว!'; }, 3000); } } else { console.log("No changes detected to save."); if (copyStatus) { copyStatus.textContent = `ℹ️ ไม่มีการแก้ไขให้บันทึก`; copyStatus.style.color = '#6b7280'; copyStatus.style.display = 'block'; setTimeout(() => { copyStatus.style.display = 'none'; copyStatus.textContent = '✅ คัดลอกรายการแล้ว!'; copyStatus.style.color = '#059669';}, 2000); } hasUnsavedChanges = false; const saveBtn = document.getElementById(SAVE_CHANGES_BTN_ID); if(saveBtn) saveBtn.disabled = true; }
-    }
-    /** V17.2: จัดการเมื่อมีการแก้ไข Input ใน Modal สรุป (เหมือน V16) */
-    function handleSummaryInputChange(event) { /* (เหมือนเดิมจาก V16) */
-        if (event.target.classList.contains('summary-input')) { if (!hasUnsavedChanges) { console.log("Change detected in summary input."); hasUnsavedChanges = true; const saveBtn = document.getElementById(SAVE_CHANGES_BTN_ID); if (saveBtn) { saveBtn.disabled = false; console.log("Save button enabled."); } } }
-    }
+
+    // --- V18: ลบฟังก์ชันที่เกี่ยวกับ Modal Editing ออก ---
+    // function handleDeleteItemInSummary(event) { /* ... ลบออก ... */ }
+    // function handleSaveChangesInSummary() { /* ... ลบออก ... */ }
+    // function handleSummaryInputChange(event) { /* ... ลบออก ... */ }
+
 
     // --- Initialization Function ---
     /** ฟังก์ชันหลัก เริ่มต้นแอป */
     async function initializeApp() {
-        console.log("--- เริ่มต้น initializeApp (V17.2) ---");
+        console.log("--- เริ่มต้น initializeApp (V18) ---");
         if (!loadingErrorDiv) { console.error("หา #loading-error-message ไม่เจอ!"); return; }
         loadingErrorDiv.textContent = '⏳ แป๊บนะเพื่อน กำลังโหลดลิสต์ของ...'; loadingErrorDiv.style.display = 'block'; /* ... styling ... */
         let fetchSuccess = false;
         try {
-            const response = await fetch(ITEMS_JSON_PATH, { cache: 'no-cache' });
-            if (!response.ok) {
-                // V17.2: แสดงข้อผิดพลาดให้ชัดเจนขึ้น
-                console.error(`Failed to fetch ${ITEMS_JSON_PATH}: ${response.status} ${response.statusText}`);
-                // ลองดึงข้อความจาก response body ถ้ามี (อาจจะช่วย debug บน server)
-                let errorBody = '';
-                try { errorBody = await response.text(); } catch (e) {}
-                throw new Error(`โหลด ${ITEMS_JSON_PATH} ไม่ได้ (${response.status}) ${errorBody}`);
-            }
-            const jsonData = await response.json();
-            if (!Array.isArray(jsonData)) throw new Error(`ข้อมูลใน ${ITEMS_JSON_PATH} ไม่ใช่ Array`);
-            masterItemList = jsonData;
-            fetchSuccess = true;
-            loadingErrorDiv.textContent = `✅ เยี่ยม! โหลดลิสต์ของ ${masterItemList.length} รายการเรียบร้อย!`; /* ... styling ... */
-            setTimeout(() => { loadingErrorDiv.style.display = 'none'; }, 3000);
-            createOrUpdateDatalist(GLOBAL_ITEMS_DATALIST_ID, masterItemList);
+            const response = await fetch(ITEMS_JSON_PATH, { cache: 'no-cache' }); if (!response.ok) { console.error(`Failed to fetch ${ITEMS_JSON_PATH}: ${response.status} ${response.statusText}`); let errorBody = ''; try { errorBody = await response.text(); } catch (e) {} throw new Error(`โหลด ${ITEMS_JSON_PATH} ไม่ได้ (${response.status}) ${errorBody}`); } const jsonData = await response.json(); if (!Array.isArray(jsonData)) throw new Error(`ข้อมูลใน ${ITEMS_JSON_PATH} ไม่ใช่ Array`); masterItemList = jsonData; fetchSuccess = true; loadingErrorDiv.textContent = `✅ เยี่ยม! โหลดลิสต์ของ ${masterItemList.length} รายการเรียบร้อย!`; /* ... styling ... */ setTimeout(() => { loadingErrorDiv.style.display = 'none'; }, 3000); createOrUpdateDatalist(GLOBAL_ITEMS_DATALIST_ID, masterItemList);
         } catch (error) {
-            console.error('!!! เกิดข้อผิดพลาดตอนโหลด items.json:', error);
-            loadingErrorDiv.textContent = `❌ โทษทีเพื่อน โหลดลิสต์ของไม่ได้ (${error.message}) จะใช้ร้านค้าเริ่มต้นแทนนะ`; /* ... styling ... */
-            loadingErrorDiv.style.display = 'block'; // แสดง error ค้างไว้
-            // V17.2: ใช้ initialShopsData เมื่อ fetch ล้มเหลว
-            shops = JSON.parse(JSON.stringify(initialShopsData));
-            console.warn("ใช้ข้อมูลร้านค้าเริ่มต้นเนื่องจาก fetch ล้มเหลว");
+            console.error('!!! เกิดข้อผิดพลาดตอนโหลด items.json:', error); loadingErrorDiv.textContent = `❌ โทษทีเพื่อน โหลดลิสต์ของไม่ได้ (${error.message}) จะใช้ร้านค้าเริ่มต้นแทนนะ`; /* ... styling ... */ loadingErrorDiv.style.display = 'block'; shops = JSON.parse(JSON.stringify(initialShopsData)); console.warn("ใช้ข้อมูลร้านค้าเริ่มต้นเนื่องจาก fetch ล้มเหลว");
         } finally {
             createOrUpdateDatalist(GLOBAL_UNITS_DATALIST_ID, BASE_UNITS);
-
-            // ----- V17.2: จุดแก้ไขสำคัญ -----
-            // เช็คว่าถ้า `shops` ยังว่างอยู่ (เช่น fetch สำเร็จ แต่ไม่มีข้อมูลร้านค้าอื่นโหลดมา)
-            // ให้ใช้ `initialShopsData` เสมอ
+            // V18: เช็คและใช้ initial shops ถ้า shops ว่าง (เหมือน V17.2)
             if (shops.length === 0) {
                 console.warn("Shops array is empty after init attempt, using initial data.");
-                shops = JSON.parse(JSON.stringify(initialShopsData)); // ใช้ deep copy
+                shops = JSON.parse(JSON.stringify(initialShopsData));
             }
-            // ---------------------------------
-
-            // กำหนด active shop แรก (ถ้ามี)
-            if (shops.length > 0 && !activeShopId) {
-                activeShopId = shops[0].id;
-            } else if (shops.length === 0) {
-                activeShopId = null;
-            }
-
-            // ย้ายการ Render และ Setup Listener มาไว้ *หลัง* การกำหนดค่า shops สุดท้าย
-            renderTabs();
-            renderTabContent();
-            setupEventListeners(); // เรียก setup listeners หลัง DOM พร้อม และ shops มีค่าแน่นอนแล้ว
-
-            console.log("--- initializeApp เสร็จสิ้น (V17.2) ---");
+            if (shops.length > 0 && !activeShopId) { activeShopId = shops[0].id; }
+            else if (shops.length === 0) { activeShopId = null; }
+            renderTabs(); renderTabContent();
+            setupEventListeners(); // เรียก setup listeners
+            console.log("--- initializeApp เสร็จสิ้น (V18) ---");
         }
     }
 
-    /** V17.2: ฟังก์ชันรวมการตั้งค่า Event Listeners หลัก */
+    /** V18: ฟังก์ชันรวมการตั้งค่า Event Listeners หลัก */
     function setupEventListeners() {
         console.log("Setting up event listeners...");
 
-        // ปุ่ม + เพิ่มแท็บ/ร้าน
+        // --- Listeners จาก V17 ---
         addTabButton?.addEventListener('click', handleAddTabClick);
-        // ปุ่มยกเลิกการเพิ่มร้าน
         cancelNewShopButton?.addEventListener('click', handleCancelNewShop);
-        // ปุ่มบันทึกร้านใหม่
         saveNewShopButton?.addEventListener('click', handleSaveNewShop);
-        // กด Enter ในช่องชื่อร้านใหม่ = บันทึก
         newShopNameInput?.addEventListener('keypress', (event) => { if (event.key === 'Enter') { handleSaveNewShop(); } });
-
-        // ปุ่ม สรุปทั้งหมด (ลอย)
         overallSummaryButton?.addEventListener('click', () => showSummary());
-
-        // ปุ่ม Modal (ปิด, Copy, ปิด Action)
         modalCloseButton?.addEventListener('click', closeModal);
         copySummaryButton?.addEventListener('click', copySummaryToClipboard);
         closeModalActionButton?.addEventListener('click', closeModal);
-        // คลิกนอก Modal แล้วปิด
         window.addEventListener('click', (event) => { if (event.target == summaryModal) closeModal(); });
-
-        // --- Event Delegation ---
-        // คลิกแท็บร้านค้า (ตัวแท็บ ไม่ใช่ปุ่มลบ)
-        shopTabsContainer?.addEventListener('click', handleTabClick);
-        // V17.1: คลิกปุ่มลบร้าน (X บนแท็บ)
-        shopTabsContainer?.addEventListener('click', handleDeleteShopClick);
-
-        // คลิกปุ่มเพิ่มรายการ (+) ใน Content Area
-        tabContentArea?.addEventListener('click', handleAddItemClick);
-        // กด Enter ในช่อง Item Input = เพิ่มรายการ
-        tabContentArea?.addEventListener('keypress', (event) => {
+        shopTabsContainer?.addEventListener('click', handleTabClick); // เลือกแท็บ
+        shopTabsContainer?.addEventListener('click', handleDeleteShopClick); // ลบแท็บ (X บนแท็บ)
+        tabContentArea?.addEventListener('click', handleAddItemClick); // เพิ่ม item (+)
+        tabContentArea?.addEventListener('keypress', (event) => { // Enter ในช่อง item = เพิ่ม
              if (event.key === 'Enter' && event.target.classList.contains('entry-item')) {
                  event.preventDefault(); const entryArea = event.target.closest('.item-entry-area');
                  const addButton = entryArea?.querySelector('.entry-add-btn'); addButton?.click();
              }
          });
-        // V17.1: คลิกปุ่มลบรายการ (ถังขยะ) ใน List Area
-        tabContentArea?.addEventListener('click', handleDeleteItemInline);
+        tabContentArea?.addEventListener('click', handleDeleteItemInline); // ลบ item inline (ถังขยะ)
 
+        // --- V18: Listeners ใหม่สำหรับ Inline Editing ---
+        tabContentArea?.addEventListener('click', handleEditItemInline); // กดปุ่ม Edit (ดินสอ)
+        tabContentArea?.addEventListener('click', handleSaveEditInline); // กดปุ่ม Save (ถูก)
+        tabContentArea?.addEventListener('click', handleCancelEditInline); // กดปุ่ม Cancel (X)
 
-        // --- V16/V17: Listeners สำหรับ Modal สรุป ---
-        // คลิกปุ่มลบรายการในตารางสรุป
-        summaryContent?.addEventListener('click', handleDeleteItemInSummary);
-        // มีการแก้ไข input ในตารางสรุป
-        summaryContent?.addEventListener('input', handleSummaryInputChange);
-        // คลิกปุ่ม Save Changes ใน Modal Actions
-        modalActionsDiv?.addEventListener('click', (event) => {
-            // V17.2: เช็คให้แน่นอนว่าเป็นปุ่มที่ต้องการ
-            const saveButton = event.target.closest(`#${SAVE_CHANGES_BTN_ID}`);
-            if (saveButton) {
-                handleSaveChangesInSummary();
-            }
-        });
+        // --- V18: ลบ Listeners ของ Modal Editing ออก ---
+        // summaryContent?.addEventListener('click', handleDeleteItemInSummary); // ลบออก
+        // summaryContent?.addEventListener('input', handleSummaryInputChange); // ลบออก
+        // modalActionsDiv?.addEventListener('click', (event) => { // ลบส่วน Save ออก
+        //     if (event.target.id === SAVE_CHANGES_BTN_ID || event.target.closest(`#${SAVE_CHANGES_BTN_ID}`)) {
+        //         handleSaveChangesInSummary();
+        //     }
+        // });
+
          console.log("Event listeners setup complete.");
     }
 
