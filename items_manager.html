@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛠️ เครื่องมือจัดการรายการสินค้า V2</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <style>
+        /* เพิ่มฟอนต์ Sarabun */
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f1f5f9; /* Tailwind's slate-100 */
+            color: #1e293b; /* Tailwind's slate-800 */
+        }
+        /* Custom styles for better look */
+        .container {
+            max-width: 650px; /* ขยายความกว้างเล็กน้อย */
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
+        }
+        h1 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #4f46e5; /* Tailwind's indigo-600 */
+        }
+        .section-title {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 0.75rem; /* mb-3 */
+            padding-bottom: 0.5rem; /* pb-2 */
+            border-bottom: 1px solid #e5e7eb; /* border-b border-gray-200 */
+            color: #374151; /* text-gray-700 */
+        }
+        #item-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0.5rem; /* py-3 px-2 */
+            border-bottom: 1px solid #e5e7eb; /* border-b border-gray-200 */
+        }
+        #item-list li:last-child {
+            border-bottom: none;
+        }
+        .item-text {
+            flex-grow: 1;
+            margin-right: 0.5rem; /* mr-2 */
+            word-break: break-word; /* Handle long item names */
+        }
+        .remove-button {
+            background-color: #ef4444; /* Tailwind's red-500 */
+            color: white;
+            padding: 0.3rem 0.6rem; /* py-1 px-2 */
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            flex-shrink: 0; /* Prevent button from shrinking */
+        }
+        .remove-button:hover {
+            background-color: #dc2626; /* Tailwind's red-600 */
+        }
+        .action-button {
+            font-weight: 600;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            width: 100%; /* Full width on small screens */
+        }
+        @media (min-width: 640px) {
+            .action-button {
+                width: auto; /* Auto width on larger screens */
+            }
+        }
+         .add-button {
+            background-color: #10b981; /* Tailwind's emerald-500 */
+            color: white;
+        }
+        .add-button:hover {
+            background-color: #059669; /* Tailwind's emerald-600 */
+        }
+        .download-button {
+            background-color: #3b82f6; /* Tailwind's blue-500 */
+            color: white;
+        }
+        .download-button:hover {
+            background-color: #2563eb; /* Tailwind's blue-600 */
+        }
+        .load-button {
+            background-color: #f97316; /* Tailwind's orange-500 */
+            color: white;
+            padding: 0.5rem 0.75rem; /* py-2 px-3 */
+        }
+        .load-button:hover {
+             background-color: #ea580c; /* Tailwind's orange-600 */
+        }
+        .input-group {
+            display: flex;
+            gap: 0.5rem; /* gap-2 */
+            margin-bottom: 1rem;
+        }
+        .input-field {
+            flex-grow: 1;
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.5rem 0.75rem; /* py-2 px-3 */
+            font-size: 1rem;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6; /* focus:border-blue-500 */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); /* focus:ring-2 focus:ring-blue-200 */
+        }
+        .file-input-label {
+            display: block; /* Make label block */
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background-color 0.2s ease;
+            text-align: center;
+            font-weight: 500;
+            color: #374151;
+        }
+        .file-input-label:hover {
+            background-color: #f9fafb; /* bg-gray-50 */
+        }
+        /* Hide the default file input */
+        input[type="file"] {
+            display: none;
+        }
+        .list-container {
+            max-height: 400px; /* Limit height and make scrollable */
+            overflow-y: auto;
+            border: 1px solid #e5e7eb; /* border border-gray-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            margin-bottom: 1rem;
+            background-color: #f9fafb; /* bg-gray-50 */
+            min-height: 100px; /* Ensure it has some height even when empty */
+        }
+        .status-message {
+            text-align: center;
+            margin-top: 0.75rem; /* mt-3 */
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            display: none; /* Hidden by default */
+        }
+        .status-success {
+            color: #047857; /* text-emerald-700 */
+            background-color: #d1fae5; /* bg-emerald-100 */
+            border: 1px solid #a7f3d0; /* border-emerald-200 */
+        }
+        .status-error {
+            color: #b91c1c; /* text-red-700 */
+            background-color: #fee2e2; /* bg-red-100 */
+            border: 1px solid #fecaca; /* border-red-200 */
+        }
+        .status-info {
+            color: #1d4ed8; /* text-blue-700 */
+            background-color: #dbeafe; /* bg-blue-100 */
+            border: 1px solid #bfdbfe; /* border-blue-200 */
+        }
+        .divider {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px dashed #cbd5e1; /* border-b border-dashed border-slate-300 */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🛠️ จัดการรายการสินค้า V2 (โหลด/เซฟ)</h1>
+
+        <h2 class="section-title">1. โหลดไฟล์ (ถ้ามี)</h2>
+        <div class="mb-4">
+            <label for="load-file-input" class="file-input-label load-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open inline-block mr-2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="M2 10h20"/></svg>
+                เลือกไฟล์ items.json...
+            </label>
+            <input type="file" id="load-file-input" accept=".json">
+            <p class="text-xs text-gray-500 mt-1">เลือกไฟล์ `items.json` ที่มีอยู่เพื่อนำมาแก้ไข</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2 class="section-title">2. จัดการรายการ</h2>
+        <div class="input-group">
+            <input type="text" id="new-item-input" class="input-field" placeholder="พิมพ์ชื่อรายการใหม่...">
+            <button id="add-item-button" class="action-button add-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+                เพิ่ม
+            </button>
+        </div>
+
+        <p class="text-sm text-gray-600 mb-2">รายการสินค้าปัจจุบัน (<span id="item-count">0</span> รายการ):</p>
+        <div class="list-container">
+            <ul id="item-list">
+                <li id="list-placeholder" class="text-gray-400 italic text-center py-10">
+                    👈 โหลดไฟล์ .json ด้านบน <br> หรือพิมพ์รายการใหม่แล้วกด 'เพิ่ม'
+                 </li>
+            </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <h2 class="section-title">3. ดาวน์โหลดไฟล์ที่แก้ไขแล้ว</h2>
+        <div class="text-center">
+            <button id="download-button" class="action-button download-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                ดาวน์โหลด items.json (Save As...)
+            </button>
+             <p class="text-xs text-gray-500 mt-1">
+                กดปุ่มนี้เพื่อเซฟไฟล์ เบราว์เซอร์จะถามที่เซฟ ให้เลือกโฟลเดอร์ที่ต้องการ (เช่น: `/storage/emulated/0/Mao projects/แบบฟอร์มสั่งของ`)
+            </p>
+        </div>
+
+        <div id="status-message" class="status-message mt-4"></div>
+
+    </div>
+
+    <script>
+        // --- Element References ---
+        const loadFileInput = document.getElementById('load-file-input');
+        const newItemInput = document.getElementById('new-item-input');
+        const addItemButton = document.getElementById('add-item-button');
+        const itemList = document.getElementById('item-list');
+        const itemCountSpan = document.getElementById('item-count');
+        const downloadButton = document.getElementById('download-button');
+        const statusMessage = document.getElementById('status-message');
+        const listPlaceholder = document.getElementById('list-placeholder');
+
+        // --- State ---
+        let currentItems = []; // เริ่มต้นด้วย array ว่าง
+
+        // --- Functions ---
+
+        /** แสดงข้อความสถานะ */
+        function showStatus(message, type = 'info') { // type can be 'info', 'success', 'error'
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.style.display = 'block';
+            // ซ่อนข้อความหลังจาก 5 วินาที
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        /** Render รายการสินค้าใน List */
+        function renderList() {
+            itemList.innerHTML = ''; // เคลียร์รายการเก่า
+            if (currentItems.length === 0) {
+                 itemList.appendChild(listPlaceholder); // แสดง placeholder ถ้าไม่มีรายการ
+                 listPlaceholder.style.display = 'block';
+            } else {
+                listPlaceholder.style.display = 'none'; // ซ่อน placeholder
+                // เรียงลำดับก่อนแสดงผลเสมอ
+                const sortedItems = [...currentItems].sort((a, b) => a.localeCompare(b, 'th'));
+                sortedItems.forEach((item, index) => {
+                    // หา index เดิมก่อน sort เพื่อใช้ในการลบที่ถูกต้อง
+                    const originalIndex = currentItems.indexOf(item);
+
+                    const li = document.createElement('li');
+
+                    const itemTextSpan = document.createElement('span');
+                    itemTextSpan.textContent = item;
+                    itemTextSpan.className = 'item-text';
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.textContent = 'ลบ';
+                    removeBtn.className = 'remove-button';
+                    // ใช้ originalIndex ในการลบ
+                    removeBtn.addEventListener('click', () => removeItem(originalIndex));
+
+                    li.appendChild(itemTextSpan);
+                    li.appendChild(removeBtn);
+                    itemList.appendChild(li);
+                });
+            }
+            itemCountSpan.textContent = currentItems.length; // อัปเดตจำนวนรายการ
+        }
+
+        /** เพิ่มรายการใหม่ */
+        function addItem() {
+            const newItemName = newItemInput.value.trim();
+            if (newItemName === '') {
+                showStatus('⚠️ กรุณาใส่ชื่อรายการสินค้าก่อนนะเพื่อน', 'error');
+                return;
+            }
+            // ตรวจสอบว่ามีรายการนี้อยู่แล้วหรือไม่ (ไม่สนตัวพิมพ์เล็ก/ใหญ่)
+            if (currentItems.some(item => item.toLowerCase() === newItemName.toLowerCase())) {
+                showStatus(`⚠️ รายการ "${newItemName}" มีอยู่แล้วว่ะ!`, 'error');
+                return;
+            }
+
+            currentItems.push(newItemName);
+            newItemInput.value = ''; // เคลียร์ input
+            renderList(); // แสดงผล list ใหม่
+            showStatus(`✅ เพิ่มรายการ "${newItemName}" เรียบร้อย!`, 'success');
+            newItemInput.focus(); // ย้าย cursor กลับไปที่ input
+        }
+
+        /** ลบรายการ */
+        function removeItem(indexToRemove) {
+            // ตรวจสอบ index ก่อนลบ
+             if (indexToRemove < 0 || indexToRemove >= currentItems.length) {
+                console.error("Invalid index for removal:", indexToRemove);
+                showStatus('❌ เกิดข้อผิดพลาดในการลบรายการ', 'error');
+                return;
+            }
+            const itemNameToRemove = currentItems[indexToRemove];
+            currentItems.splice(indexToRemove, 1); // ลบออกจาก array
+            renderList(); // แสดงผล list ใหม่
+            showStatus(`🗑️ ลบรายการ "${itemNameToRemove}" แล้ว`, 'info');
+        }
+
+        /** ดาวน์โหลดไฟล์ JSON */
+        function downloadJson() {
+            if (currentItems.length === 0) {
+                showStatus('🤷 ไม่มีรายการให้ดาวน์โหลดเลยเพื่อน', 'error');
+                return;
+            }
+            // เรียงลำดับก่อนดาวน์โหลด
+            const sortedItems = [...currentItems].sort((a, b) => a.localeCompare(b, 'th'));
+            const jsonString = JSON.stringify(sortedItems, null, 2); // จัดรูปแบบให้อ่านง่าย (indent 2 spaces)
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'items.json'; // ชื่อไฟล์ตอนดาวน์โหลด (ผู้ใช้เปลี่ยนได้ตอนเซฟ)
+            document.body.appendChild(a); // ต้อง append เข้า DOM ก่อนถึงจะคลิกได้ในบาง browser
+            a.click();
+            document.body.removeChild(a); // ลบ element ออกหลังคลิก
+            URL.revokeObjectURL(url); // คืน memory
+            // ไม่ต้องแสดง status ตอนกดดาวน์โหลด เพราะ browser จัดการเอง
+        }
+
+        /** จัดการการโหลดไฟล์ */
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return; // ไม่ได้เลือกไฟล์
+            }
+
+            // ตรวจสอบว่าเป็นไฟล์ JSON หรือไม่ (เบื้องต้น)
+            if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+                 showStatus(`❌ ไฟล์ "${file.name}" ไม่ใช่ .json ว่ะเพื่อน ลองใหม่ดิ๊`, 'error');
+                 loadFileInput.value = ''; // เคลียร์ค่า input file
+                 return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const fileContent = e.target.result;
+                    const parsedData = JSON.parse(fileContent);
+
+                    // ตรวจสอบว่าเป็น Array ของ String หรือไม่
+                    if (!Array.isArray(parsedData) || !parsedData.every(item => typeof item === 'string')) {
+                        throw new Error('รูปแบบข้อมูลในไฟล์ไม่ถูกต้อง (ต้องเป็น Array ของข้อความ)');
+                    }
+
+                    currentItems = parsedData; // อัปเดตรายการปัจจุบัน
+                    renderList(); // แสดงผลรายการที่โหลดมา
+                    showStatus(`✅ โหลดไฟล์ "${file.name}" สำเร็จ (${currentItems.length} รายการ)`, 'success');
+
+                } catch (error) {
+                    console.error("Error parsing JSON:", error);
+                    showStatus(`❌ อ่านไฟล์ JSON ไม่ได้ว่ะเพื่อน ไฟล์อาจจะเสีย (${error.message})`, 'error');
+                    // ไม่ต้องเคลียร์ currentItems ถ้าโหลดไฟล์เสีย ให้ใช้ข้อมูลเดิมไปก่อน
+                } finally {
+                     loadFileInput.value = ''; // เคลียร์ค่า input file หลังโหลดเสร็จ (สำเร็จหรือไม่ก็ตาม)
+                }
+            };
+
+            reader.onerror = function(e) {
+                console.error("File reading error:", e);
+                showStatus(`❌ เกิดปัญหาตอนอ่านไฟล์ "${file.name}"`, 'error');
+                 loadFileInput.value = ''; // เคลียร์ค่า input file
+            };
+
+            reader.readAsText(file); // อ่านไฟล์เป็น Text
+        }
+
+
+        // --- Event Listeners ---
+        loadFileInput.addEventListener('change', handleFileLoad); // Listener สำหรับโหลดไฟล์
+        addItemButton.addEventListener('click', addItem);
+        // เพิ่มโดยการกด Enter ใน input
+        newItemInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // ป้องกันการ submit ฟอร์ม (ถ้ามี)
+                addItem();
+            }
+        });
+        downloadButton.addEventListener('click', downloadJson);
+
+        // --- Initial Load ---
+        renderList(); // แสดงผลรายการเริ่มต้น (ซึ่งจะเป็น placeholder)
+
+    </script>
+
+</body>
+</html>
