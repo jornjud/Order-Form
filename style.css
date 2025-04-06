@@ -3,15 +3,17 @@
 
 html { scroll-behavior: smooth; }
 body {
-    font-family: 'Sarabun', sans-serif; background-color: #f3f4f6;
-    padding-bottom: 90px; margin: 0; color: #1f2937;
+    font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; /* สีพื้นหลังเทาอ่อน */
+    padding-bottom: 90px; /* กันที่ให้ปุ่มสรุปลอย */
+    margin: 0;
+    color: #1f2937; /* สีตัวหนังสือหลัก */
 }
 
 /* --- Layout หลัก --- */
 .container { width: 100%; max-width: 1024px; margin: auto; }
-h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; color: #4338ca; padding: 0 0.75rem; }
+h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; color: #4338ca; padding: 1rem 0.75rem 0 0.75rem; /* V18.5: เพิ่ม padding บน */ }
 
-/* --- V18.4: ส่วนของแถบแท็บ --- */
+/* --- V18.5: ส่วนของแถบแท็บ --- */
 .tabs-container { display: flex; flex-wrap: wrap; align-items: center; border-bottom: 2px solid #d1d5db; padding: 0 0.75rem 0 0.75rem; margin-bottom: 0; gap: 0.25rem; }
 .tab-button { display: inline-flex; align-items: center; padding: 0.5rem 0.5rem 0.5rem 1rem; border: 1px solid #d1d5db; border-bottom: none; border-radius: 0.375rem 0.375rem 0 0; background-color: #f9fafb; color: #374151; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; white-space: nowrap; position: relative; margin-bottom: -2px; }
 .tab-button:hover { background-color: #f3f4f6; border-color: #9ca3af; }
@@ -30,7 +32,7 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .cancel-new-shop-button:hover { background-color: #9ca3af; }
 .hidden { display: none !important; }
 
-/* --- V18.4: พื้นที่แสดงเนื้อหาของแท็บที่เลือก --- */
+/* --- V18.5: พื้นที่แสดงเนื้อหาของแท็บที่เลือก --- */
 #tab-content-area { padding: 1rem 0.75rem 1.5rem 0.75rem; background-color: #ffffff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 0.75rem 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.05); min-height: 200px; }
 #tab-content-area .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; }
 #tab-content-area .shop-name-display { font-size: 1.4rem; font-weight: 600; color: #1f2937; margin-right: 0.5rem; flex-grow: 1; }
@@ -48,7 +50,7 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 #tab-content-area .entry-status.success { color: #065f46; background-color: #d1fae5; border: 1px solid #a7f3d0; }
 #tab-content-area .entry-status.error { color: #991b1b; background-color: #fee2e2; border: 1px solid #fecaca; }
 
-/* --- V18.4: พื้นที่แสดงรายการสินค้า (Scrollable List Area) --- */
+/* --- พื้นที่แสดงรายการสินค้า (Scrollable List Area) --- */
 .item-list-area { border: 1px solid #e5e7eb; border-radius: 0.5rem; margin-top: 1rem; max-height: 280px; overflow-y: auto; background-color: #f9fafb; }
 .item-list-area ul { list-style: none; padding: 0; margin: 0; }
 .item-list-placeholder { text-align: center; color: #9ca3af; font-style: italic; padding: 1rem; font-size: 0.9rem; }
@@ -77,37 +79,21 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .cancel-edit-inline-btn { color: #ef4444; }
 .cancel-edit-inline-btn:hover { background-color: #fee2e2; }
 
-
-/* --- V18.4: ส่วนปุ่มดำเนินการท้าย Content Area (เพิ่มปุ่ม Clear) --- */
-#tab-content-area .shop-actions {
-    margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f3f4f6;
-    display: flex;
-    justify-content: flex-end; /* จัดปุ่มไปทางขวา */
-    gap: 0.75rem; /* ระยะห่างระหว่างปุ่ม */
-    flex-wrap: wrap; /* ขึ้นบรรทัดใหม่ถ้าจอแคบ */
-}
-/* ปุ่ม "ล้างรายการร้านนี้" */
-.clear-items-btn {
-    background-color: #f97316; /* สีส้ม */
-    color: white;
-}
-.clear-items-btn svg { width: 16px; height: 16px; } /* ขนาดไอคอนถังขยะ */
-.clear-items-btn:hover {
-    background-color: #ea580c; /* สีส้มเข้ม */
-}
-/* ปุ่ม "สรุปรายการร้านนี้" */
+/* --- ส่วนปุ่มดำเนินการท้าย Content Area --- */
+#tab-content-area .shop-actions { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; gap: 0.75rem; flex-wrap: wrap; }
+.clear-items-btn { background-color: #f97316; color: white; }
+.clear-items-btn svg { width: 16px; height: 16px; }
+.clear-items-btn:hover { background-color: #ea580c; }
 .summarize-btn { background-color: #a855f7; color: white; }
 .summarize-btn:hover { background-color: #9333ea; }
-
 
 /* --- ปุ่มดำเนินการทั่วไป --- */
 .action-button { font-weight: 600; padding: 0.7rem 1.1rem; border-radius: 0.5rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.95rem; line-height: 1; border: none; cursor: pointer; transition: all 0.2s ease-in-out; text-align: center; width: 100%; }
 @media (min-width: 640px) { .action-button { width: auto; } }
 .action-button svg { width: 18px; height: 18px; }
-.action-button:hover:not(.entry-add-btn):not(.close-btn):not(.delete-shop-btn):not(.summarize-btn):not(.copy-btn):not(.delete-tab-btn):not(.clear-items-btn) { opacity: 0.9; transform: scale(1.02); } /* V18.4: Exclude clear button */
+.action-button:hover:not(.entry-add-btn):not(.close-btn):not(.delete-shop-btn):not(.summarize-btn):not(.copy-btn):not(.delete-tab-btn):not(.clear-items-btn) { opacity: 0.9; transform: scale(1.02); }
 .action-button:disabled { opacity: 0.6; cursor: not-allowed; background-image: none; background-color: #9ca3af; color: #e5e7eb; }
 .action-button:disabled:hover { opacity: 0.6; transform: none; }
-
 
 /* --- ส่วน Loading / Error Message --- */
 .loading-error { text-align: center; padding: 1rem; margin: 1rem auto; background-color: #fffbeb; color: #b45309; border: 1px solid #fef3c7; border-radius: 0.5rem; max-width: 600px; display: none; font-size: 0.9rem; line-height: 1.4; }
@@ -117,7 +103,7 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .overall-summary-main-btn { background-image: linear-gradient(to right, #14b8a6, #06b6d4); color: white; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); font-size: 1rem; }
 .overall-summary-main-btn:hover { background-image: linear-gradient(to right, #0d9488, #0891b2); }
 
-/* --- Modal สรุปรายการ (V18.4: Read-Only) --- */
+/* --- Modal สรุปรายการ (V18.5: Read-Only) --- */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.65); padding-top: 5vh; }
 .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: none; width: 92%; max-width: 700px; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
 .close-btn { color: #aaa; position: absolute; top: 10px; right: 15px; font-size: 35px; font-weight: bold; line-height: 0.8; padding: 0; border: none; background: none; cursor: pointer; }
@@ -132,10 +118,9 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .summary-modal-content td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; word-wrap: break-word; }
 .summary-modal-content th { background-color: #f8f9fa; font-weight: 600; font-size: 0.85rem; }
 .summary-modal-content td { font-size: 0.875rem; }
-/* V18.4: ความกว้างคอลัมน์ Read-Only (3 คอลัมน์) */
-.summary-modal-content th:nth-child(1), .summary-modal-content td:nth-child(1) { width: 15%; text-align: center; } /* จำนวน */
-.summary-modal-content th:nth-child(2), .summary-modal-content td:nth-child(2) { width: 20%; } /* หน่วย */
-.summary-modal-content th:nth-child(3), .summary-modal-content td:nth-child(3) { width: 65%; } /* รายการ */
+.summary-modal-content th:nth-child(1), .summary-modal-content td:nth-child(1) { width: 15%; text-align: center; }
+.summary-modal-content th:nth-child(2), .summary-modal-content td:nth-child(2) { width: 20%; }
+.summary-modal-content th:nth-child(3), .summary-modal-content td:nth-child(3) { width: 65%; }
 .summary-modal-content p { text-align: center; color: #9ca3af; font-style: italic; font-size: 0.875rem; padding: 0.5rem 0; margin: 0; }
 .summary-modal-content .shop-timestamp-print { font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem; text-align: left; }
 .modal-actions { text-align: center; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
@@ -146,36 +131,27 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .close-action-btn:hover { background-color: #9ca3af; }
 
 
-/* --- สไตล์สำหรับการพิมพ์ (V18.4: ซ่อนปุ่ม Clear Items ด้วย) --- */
+/* --- V18.5: สไตล์สำหรับการพิมพ์ (แก้ไขให้ซ่อน Content Area ถูกต้อง) --- */
 @media print {
     /* --- ซ่อน Element ที่ไม่ต้องการพิมพ์ --- */
     body > .container > h1,
-    #shop-tabs-container,
-    #tab-content-area .shop-header,
-    #tab-content-area .item-entry-area,
-    #tab-content-area .item-list-area .edit-item-inline-btn,
-    #tab-content-area .item-list-area .delete-item-inline-btn,
-    #tab-content-area .item-list-area .item-edit-mode,
-    #tab-content-area .shop-actions .summarize-btn, /* ซ่อนปุ่มสรุปในร้าน */
-    #tab-content-area .shop-actions .clear-items-btn, /* V18.4: ซ่อนปุ่มล้าง */
-    .summary-fixed-container,
+    #shop-tabs-container, /* ซ่อนแถบแท็บ */
+    #tab-content-area, /* V18.5: ซ่อน Content Area ทั้งหมดไปเลย */
+    .summary-fixed-container, /* ซ่อนปุ่มสรุปลอย */
     #loading-error-message,
-    .modal-actions .copy-btn,
-    .modal-actions .close-action-btn,
-    .modal .close-btn,
+    .modal-actions .copy-btn, /* ซ่อนปุ่ม Copy */
+    .modal-actions .close-action-btn, /* ซ่อนปุ่ม ปิด */
+    .modal .close-btn, /* ซ่อนปุ่ม X ปิด Modal */
     .copy-status-message,
     #no-shop-placeholder
      {
         display: none !important;
     }
-    /* ทำให้ List Area แสดงผลปกติ แต่ไม่จำกัดความสูง */
-     #tab-content-area .item-list-area { max-height: none !important; overflow-y: visible !important; border: none !important; background-color: transparent !important; margin-top: 0.5rem !important; }
-      #tab-content-area .shop-item-row { padding: 2px 0 !important; border-bottom: 1px dotted #ccc !important; font-size: 9pt !important; }
 
-    /* --- แสดงและจัดรูปแบบ Modal สรุป (Read-Only) สำหรับการพิมพ์ --- */
+    /* --- แสดงและจัดรูปแบบ Modal สรุปสำหรับการพิมพ์ --- */
     html, body { padding-bottom: 0 !important; margin: 0 !important; background-color: #ffffff !important; color: #000000 !important; width: 100% !important; height: auto !important; overflow: visible !important; }
     .container { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: none !important; background-color: transparent !important; width: 100% !important; max-width: 100% !important; }
-    #tab-content-area { display: block !important; padding: 0 !important; border: none !important; box-shadow: none !important; }
+    /* #tab-content-area { display: none !important; } V18.5: ซ่อนใน list ด้านบนแล้ว */
     .modal { position: static !important; display: block !important; width: 100% !important; height: auto !important; overflow: visible !important; background-color: transparent !important; padding-top: 0 !important; box-shadow: none !important; border: none !important; page-break-before: auto; page-break-inside: avoid; }
     .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; padding: 0.5rem !important; margin: 0 !important; page-break-inside: avoid; }
     .modal-title { font-size: 14pt !important; text-align: left !important; color: #000000 !important; margin-bottom: 0.5rem !important; }
@@ -188,4 +164,5 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
     .summary-modal-content th,
     .summary-modal-content td { border: 1px solid #cccccc !important; padding: 4px 6px !important; vertical-align: top !important; }
     .summary-modal-content th { background-color: #eeeeee !important; font-weight: bold !important; }
+
 }
