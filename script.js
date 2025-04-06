@@ -112,9 +112,58 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Save new shop clicked"); if (!newShopNameInput) { console.error("handleSaveNewShop: Missing newShopNameInput"); return; } const newName = newShopNameInput.value.trim(); if (!newName) { alert("เพื่อน! ยังไม่ได้ใส่ชื่อร้านเลยนะ"); newShopNameInput.focus(); return; } if (shops.some(shop => shop.name.toLowerCase() === newName.toLowerCase())) { alert(`เพื่อน! มีร้านชื่อ "${newName}" อยู่แล้วนะ`); newShopNameInput.focus(); newShopNameInput.select(); return; } const newShopId = `shop-${Date.now()}`; const newShopData = { id: newShopId, name: newName, items: [] }; shops.push(newShopData); activeShopId = newShopId; console.log("New shop added:", newShopData); renderTabs(); renderTabContent(); handleCancelNewShop(); saveShopsToLocalStorage();
     }
      /** V18.6: จัดการการกดปุ่มลบร้าน (X บนแท็บ) */
-    function handleDeleteShopClick(event) { /* (เหมือนเดิม + save) */
-        const deleteButton = event.target.closest('.delete-tab-btn'); if (!deleteButton) return; const shopIdToDelete = deleteButton.dataset.shopId; const shopToDelete = shops.find(s => s.id === shopIdToDelete); console.log("Delete tab button clicked for:", shopIdToDelete, shopToDelete?.name); if (!shopToDelete) return; if (confirm(`⚠️ ยืนยันจะลบร้าน "${shopToDelete.name}" จริงดิ? ข้อมูลของในร้านนี้จะหายหมดนะ!`)) { const indexToDelete = shops.findIndex(s => s.id === shopIdToDelete); if (indexToDelete > -1) { shops.splice(indexToDelete, 1); console.log("Shop removed from state."); if (activeShopId === shopIdToDelete) { if (shops.length === 0) { activeShopId = null; } else if (indexToDelete >= shops.length) { activeShopId = shops[shops.length - 1].id; } else { activeShopId = shops[indexToDelete].id; } console.log("New activeShopId:", activeShopId); } renderTabs(); renderTabContent(); saveShopsToLocalStorage(); } }
+    function handleDeleteShopClick(event) {
+    console.log("handleDeleteShopClick function started!"); // <--- เพิ่มบรรทัดที่ 1
+    const deleteButton = event.target.closest('.delete-tab-btn');
+    if (!deleteButton) {
+        // console.log("Clicked target was not a delete button."); // อาจจะเพิ่ม log ตรงนี้ด้วยก็ได้ ถ้าอยากรู้ว่าคลิกโดนอะไร
+        return;
     }
+    console.log("Delete button found:", deleteButton); // <--- เพิ่มบรรทัดที่ 2
+    const shopIdToDelete = deleteButton.dataset.shopId;
+    const shopToDelete = shops.find(s => s.id === shopIdToDelete);
+    console.log("Shop ID to delete:", shopIdToDelete, "Shop object:", shopToDelete); // <--- เพิ่มบรรทัดที่ 3
+
+    if (!shopToDelete) {
+        console.error("Shop object not found in state!"); // <--- เพิ่มบรรทัดที่ 4
+        return;
+    }
+
+    if (confirm(`⚠️ ยืนยันจะลบร้าน "${shopToDelete.name}" จริงดิ? ข้อมูลของในร้านนี้จะหายหมดนะ!`)) {
+        console.log("User confirmed deletion."); // <--- เพิ่มบรรทัดที่ 5
+        const indexToDelete = shops.findIndex(s => s.id === shopIdToDelete);
+        if (indexToDelete > -1) {
+            console.log("Found shop index:", indexToDelete); // <--- เพิ่มบรรทัดที่ 6
+            shops.splice(indexToDelete, 1);
+            console.log("Shop removed from state array. New state:", shops); // <--- เพิ่มบรรทัดที่ 7
+
+            // Determine new active tab logic (เหมือนเดิม)
+            if (activeShopId === shopIdToDelete) {
+                if (shops.length === 0) {
+                    activeShopId = null;
+                } else if (indexToDelete >= shops.length) {
+                    activeShopId = shops[shops.length - 1].id;
+                } else {
+                    activeShopId = shops[indexToDelete].id; // Or shops[indexToDelete % shops.length].id if you want to loop
+                }
+                console.log("New activeShopId:", activeShopId); // <--- เพิ่มบรรทัดที่ 8
+            }
+
+            // Re-render UI
+            console.log("Calling renderTabs()..."); // <--- เพิ่มบรรทัดที่ 9
+            renderTabs();
+            console.log("Calling renderTabContent()..."); // <--- เพิ่มบรรทัดที่ 10
+            renderTabContent();
+            console.log("Calling saveShopsToLocalStorage()..."); // <--- เพิ่มบรรทัดที่ 11
+            saveShopsToLocalStorage();
+            console.log("Deletion process complete."); // <--- เพิ่มบรรทัดที่ 12
+        } else {
+             console.error("Shop index not found after confirm! Should not happen."); // <--- เพิ่มบรรทัดที่ 13
+        }
+    } else {
+         console.log("User cancelled deletion."); // <--- เพิ่มบรรทัดที่ 14
+    }
+}
     /** V18.6: จัดการการกดปุ่ม "เพิ่มรายการ" (+) และแสดงผลในลิสต์ทันที */
     function handleAddItemClick(event) { /* (เหมือนเดิม + save) */
         const addButton = event.target.closest('.entry-add-btn'); if (!addButton) return; const entryArea = addButton.closest('.item-entry-area'); if (!entryArea) return; const shopId = entryArea.dataset.shopId; const quantityInput = entryArea.querySelector('.entry-quantity'); const unitInput = entryArea.querySelector('.entry-unit'); const itemInput = entryArea.querySelector('.entry-item'); if (!shopId || !quantityInput || !unitInput || !itemInput) { console.error("หา elements ใน entry area ไม่เจอ ร้าน:", shopId); return; } const quantity = quantityInput.value.trim(); const unit = unitInput.value.trim(); const itemName = itemInput.value.trim(); const itemNameLower = itemName.toLowerCase(); console.log(`Add item attempt: Qty=${quantity}, Unit=${unit}, Item=${itemName}, Shop=${shopId}`); if (!itemName) { showEntryStatus(entryArea, '⚠️ ยังไม่ได้ใส่ชื่อรายการเลยเพื่อน!', true); itemInput.focus(); return; } if (!quantity) { showEntryStatus(entryArea, '⚠️ ลืมใส่จำนวนรึเปล่า?', true); quantityInput.focus(); return; } const shop = shops.find(s => s.id === shopId); if (!shop) { console.error("ไม่เจอร้านใน state ID:", shopId); showEntryStatus(entryArea, '❌ เกิดข้อผิดพลาด: ไม่เจอร้านค้านี้', true); return; } const isDuplicate = shop.items.some(item => item.item.toLowerCase() === itemNameLower); if (isDuplicate) { console.log("Duplicate item found:", itemName); showEntryStatus(entryArea, `⚠️ "${itemName}" มีในร้านนี้แล้ว!`, true); itemInput.focus(); itemInput.select(); return; } const newItem = { quantity: quantity, unit: unit || '?', item: itemName }; shop.items.push(newItem); const newItemIndex = shop.items.length - 1; console.log("Item added to state:", shop.items); const listAreaUl = tabContentArea.querySelector(`#item-list-${shopId} ul`); if (listAreaUl) { const placeholder = listAreaUl.querySelector('.item-list-placeholder'); placeholder?.remove(); const newItemRow = createShopItemRow(shopId, newItem, newItemIndex); listAreaUl.appendChild(newItemRow); listAreaUl.parentElement.scrollTop = listAreaUl.parentElement.scrollHeight; } else { console.error("Could not find list area UL for shop:", shopId); renderTabContent(); } showEntryStatus(entryArea, `✅ เพิ่ม "${itemName}" แล้ว!`, false); quantityInput.value = ''; unitInput.value = ''; itemInput.value = ''; itemInput.focus(); saveShopsToLocalStorage();
