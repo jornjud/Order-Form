@@ -153,13 +153,8 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
     /* --- ซ่อน Element ที่ไม่ต้องการพิมพ์ --- */
     body > .container > h1,
     #shop-tabs-container,
-    #tab-content-area .shop-header,
-    #tab-content-area .item-entry-area,
-    #tab-content-area .item-list-area .edit-item-inline-btn,
-    #tab-content-area .item-list-area .delete-item-inline-btn,
-    #tab-content-area .item-list-area .item-edit-mode,
-    #tab-content-area .shop-actions .summarize-btn,
-    #tab-content-area .shop-actions .clear-items-btn,
+    /* --- แก้ไข: ซ่อนพื้นที่เนื้อหาของแท็บทั้งหมด --- */
+    #tab-content-area,
     .summary-fixed-container,
     #loading-error-message,
     .modal-actions .copy-btn,
@@ -170,14 +165,11 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
      {
         display: none !important;
     }
-    /* ทำให้ List Area แสดงผลปกติ แต่ไม่จำกัดความสูง */
-     #tab-content-area .item-list-area { max-height: none !important; overflow-y: visible !important; border: none !important; background-color: transparent !important; margin-top: 0.5rem !important; }
-      #tab-content-area .shop-item-row { padding: 2px 0 !important; border-bottom: 1px dotted #ccc !important; font-size: 9pt !important; }
 
-    /* --- แสดงและจัดรูปแบบ Modal สรุป (Read-Only) สำหรับการพิมพ์ --- */
+    /* --- แสดงและจัดรูปแบบ Modal สรุป สำหรับการพิมพ์ --- */
     html, body { padding-bottom: 0 !important; margin: 0 !important; background-color: #ffffff !important; color: #000000 !important; width: 100% !important; height: auto !important; overflow: visible !important; }
     .container { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: none !important; background-color: transparent !important; width: 100% !important; max-width: 100% !important; }
-    #tab-content-area { display: block !important; padding: 0 !important; border: none !important; box-shadow: none !important; }
+    /* --- ไม่จำเป็นต้องแสดง #tab-content-area แล้ว เพราะซ่อนไปแล้ว --- */
     .modal { position: static !important; display: block !important; width: 100% !important; height: auto !important; overflow: visible !important; background-color: transparent !important; padding-top: 0 !important; box-shadow: none !important; border: none !important; page-break-before: auto; page-break-inside: avoid; }
     .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; padding: 0.5rem !important; margin: 0 !important; page-break-inside: avoid; }
     .modal-title { font-size: 14pt !important; text-align: left !important; color: #000000 !important; margin-bottom: 0.5rem !important; }
