@@ -109,7 +109,6 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .modal-title { font-size: 1.5rem; line-height: 2rem; font-weight: 600; margin-bottom: 0.5rem; text-align: center; color: #4f46e5; }
 .summary-timestamp { text-align: center; font-size: 0.8rem; color: #6b7280; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px dashed #e5e7eb; }
 .summary-modal-content { /* พื้นที่แสดงสรุป HTML */
-    /* max-height: 60vh; */ /* เอา max-height ออก ให้ image-export-output จัดการแทน */
     overflow-y: auto;
     padding-right: 0.5rem; /* Space for scrollbar */
     margin-bottom: 1rem;
@@ -129,7 +128,6 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 }
 
 .summary-modal-content h3 { font-size: 1.1rem; font-weight: 600; margin-top: 0; /* V20: Remove top margin inside block */ margin-bottom: 0.25rem; color: #1f2937; padding-bottom: 0.25rem; border-bottom: 1px solid #e5e7eb; }
-/* .summary-modal-content h3:first-child { margin-top: 0; } */ /* Not needed now */
 .summary-modal-content table { width: 100%; border-collapse: collapse; margin-bottom: 0; /* V20: Remove bottom margin inside block */ }
 .summary-modal-content th,
 .summary-modal-content td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; word-wrap: break-word; }
@@ -157,7 +155,7 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
 .export-images-btn { background-color: #a855f7; color: white; } /* Purple */
 .export-images-btn:hover { background-color: #9333ea; }
 
-/* V20: Style for Image Export Output Area */
+/* V20: Style for Image Export Output Area (Keep for potential future use, but won't be targeted by print) */
 .image-export-output-area {
     margin-top: 1.25rem;
     padding-top: 1rem;
@@ -171,40 +169,11 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
     flex-shrink: 1; /* Allow shrinking */
     min-height: 50px; /* Ensure some height even when empty/loading */
 }
-.image-export-item {
-    margin-bottom: 1.5rem; /* Space between each image+link */
-}
-.image-export-item img {
-    display: block; /* Ensure image is block level */
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 90%;
-    height: auto; /* Maintain aspect ratio */
-    border: 1px solid #ccc;
-    background-color: #fff; /* Ensure white background if image is transparent */
-    margin-bottom: 0.75rem;
-}
-.download-image-btn { /* Style the download link like a button */
-    display: inline-block; /* Allow margin/padding */
-    text-decoration: none;
-    background-color: #10b981; /* Emerald */
-    color: white !important; /* Override default link color */
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-    cursor: pointer;
-}
-.download-image-btn:hover {
-    background-color: #059669;
-    color: white !important;
-}
-.export-status { /* Style for loading/status messages */
-    font-style: italic;
-    color: #6b7280;
-    margin: 1rem 0;
-}
+.image-export-item { margin-bottom: 1.5rem; }
+.image-export-item img { display: block; margin-left: auto; margin-right: auto; max-width: 90%; height: auto; border: 1px solid #ccc; background-color: #fff; margin-bottom: 0.75rem; }
+.download-image-btn { display: inline-block; text-decoration: none; background-color: #10b981; color: white !important; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.9rem; font-weight: 500; transition: background-color 0.2s ease; cursor: pointer; }
+.download-image-btn:hover { background-color: #059669; color: white !important; }
+.export-status { font-style: italic; color: #6b7280; margin: 1rem 0; }
 
 
 /* --- สไตล์สำหรับการพิมพ์ --- */
@@ -218,12 +187,11 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
     #loading-error-message,
     .modal-actions .copy-btn,
     .modal-actions .close-action-btn,
+    .modal-actions .export-images-btn, /* ซ่อนปุ่ม export ด้วย */
     .modal .close-btn,
     .copy-status-message,
     #no-shop-placeholder,
-    /* V20: Hide export button and output area during print */
-    #export-images-btn,
-    #image-export-output
+    #image-export-output /* ซ่อนพื้นที่แสดงรูปตอนพิมพ์ */
      {
         display: none !important;
     }
@@ -232,31 +200,46 @@ h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin-bottom:
     html, body { padding-bottom: 0 !important; margin: 0 !important; background-color: #ffffff !important; color: #000000 !important; width: 100% !important; height: auto !important; overflow: visible !important; font-size: 9pt !important; }
     .container { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: none !important; background-color: transparent !important; width: 100% !important; max-width: 100% !important; }
     .modal { position: static !important; display: block !important; width: 100% !important; height: auto !important; overflow: visible !important; background-color: transparent !important; padding-top: 0 !important; box-shadow: none !important; border: none !important; page-break-before: auto; }
-    .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; padding: 0.5rem !important; margin: 0 !important; page-break-inside: avoid; }
+    .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; padding: 0.3rem !important; margin: 0 !important; page-break-inside: avoid; }
 
     /* --- สไตล์เนื้อหาใน Modal ตอนพิมพ์ (ปรับลดขนาด/ระยะห่าง) --- */
     .modal-title { font-size: 13pt !important; text-align: left !important; color: #000000 !important; margin-bottom: 0.4rem !important; }
     .summary-timestamp { text-align: left !important; font-size: 8pt !important; color: #333333 !important; border-bottom: 1px dashed #cccccc !important; padding-bottom: 0.2rem !important; margin-bottom: 0.4rem !important; }
-    .summary-modal-content { max-height: none !important; overflow-y: visible !important; padding: 0 !important; font-size: inherit !important; page-break-inside: avoid; }
-    /* V20: Style the wrapper block for printing */
-    #summaryContent .shop-summary-block {
-        margin-bottom: 0.5rem !important; /* Adjust space between blocks when printing */
-        padding-bottom: 0 !important;
-        border-bottom: none !important; /* Hide dashed line */
-        page-break-inside: avoid; /* Try to keep block together */
+
+    /* <<<--- START: ส่วนที่แก้ให้เป็น 2 คอลัมน์ --->>> */
+    .summary-modal-content {
+        max-height: none !important;
+        overflow-y: visible !important;
+        padding: 0 !important;
+        font-size: inherit !important;
+        display: flex !important; /* <<<<<< ใช้ Flexbox */
+        flex-wrap: wrap !important; /* <<<<<< ให้ขึ้นบรรทัดใหม่ได้ */
+        justify-content: space-between !important; /* <<<<<< จัดช่องว่าง */
+        gap: 1% !important; /* <<<<<< ระยะห่างระหว่างคอลัมน์ */
     }
 
-    .summary-modal-content h3 { font-size: 10pt !important; color: #000000 !important; border-bottom: 1px solid #cccccc !important; margin-top: 0 !important; /* Reset top margin */ margin-bottom: 0.15rem !important; page-break-after: avoid; }
+    #summaryContent .shop-summary-block {
+        width: 49% !important; /* <<<<<< กำหนดความกว้างเกือบครึ่ง */
+        box-sizing: border-box !important; /* <<<<<< ให้ padding/border รวมใน width */
+        margin-bottom: 0.5rem !important; /* ระยะห่างล่างของแต่ละบล็อก */
+        border: 1px solid #eee !important; /* <<<<<< เพิ่มเส้นขอบบางๆ (เอาออกได้ถ้าไม่ชอบ) */
+        padding: 0.3rem !important; /* <<<<<< เพิ่มช่องว่างภายในบล็อก */
+        page-break-inside: avoid !important; /* <<<<<< พยายามไม่ให้บล็อกร้านค้าโดนตัดกลางหน้า */
+        border-bottom: none !important; /* ไม่ต้องใช้เส้นประล่างแล้ว */
+    }
+    /* <<<--- END: ส่วนที่แก้ให้เป็น 2 คอลัมน์ --->>> */
+
+    .summary-modal-content h3 { font-size: 9pt !important; color: #000000 !important; border-bottom: 1px solid #cccccc !important; margin-top: 0 !important; margin-bottom: 0.15rem !important; padding: 0 !important; page-break-after: avoid; }
     .summary-modal-content .shop-timestamp-print { font-size: 7.5pt !important; color: #555555 !important; margin-bottom: 0.25rem !important; text-align: left !important; page-break-after: avoid; }
-    .summary-modal-content table { width: 100% !important; border-collapse: collapse !important; margin-bottom: 0 !important; /* Remove margin inside block */ font-size: inherit !important; page-break-inside: avoid; }
+    .summary-modal-content table { width: 100% !important; border-collapse: collapse !important; margin-bottom: 0 !important; font-size: 8pt !important; /* อาจจะลดลงอีกถ้าจำเป็น */ page-break-inside: avoid; }
     .summary-modal-content th,
-    .summary-modal-content td { border: 1px solid #cccccc !important; padding: 3px 5px !important; vertical-align: top !important; word-wrap: break-word; overflow-wrap: break-word; widows: 3; orphans: 3; line-height: 1.3 !important; }
+    .summary-modal-content td { border: 1px solid #cccccc !important; padding: 2px 4px !important; /* ลด padding ในเซลล์ */ vertical-align: top !important; word-wrap: break-word; overflow-wrap: break-word; widows: 3; orphans: 3; line-height: 1.2 !important; } /* ลด line-height */
     .summary-modal-content th { background-color: #eeeeee !important; font-weight: bold !important; font-size: 8pt !important; }
-    .summary-modal-content tfoot td { background-color: #eeeeee !important; font-weight: bold !important; border-top: 2px solid #bbbbbb !important; padding: 3px 5px !important; }
-    .summary-modal-content tfoot td[colspan="3"] { border-right: none !important; text-align: right; padding-right: 8px !important; }
+    .summary-modal-content tfoot td { background-color: #eeeeee !important; font-weight: bold !important; border-top: 2px solid #bbbbbb !important; padding: 2px 4px !important; }
+    .summary-modal-content tfoot td[colspan="3"] { border-right: none !important; text-align: right; padding-right: 6px !important; }
     .summary-modal-content tfoot td:last-child { border-left: none !important; }
     .summary-modal-content th:nth-child(4),
     .summary-modal-content td:nth-child(4) { display: table-cell !important; }
-     .summary-modal-content td[colspan="4"] { padding: 5px 8px !important; }
+     .summary-modal-content td[colspan="4"] { padding: 4px 6px !important; }
 }
 /* --- <<< END PRINT STYLE OPTIMIZATIONS >>> --- */
